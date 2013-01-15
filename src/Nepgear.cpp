@@ -7,6 +7,7 @@
 // These two are singletons for convenience.
 #include "events/EventManager.h"
 #include "utils/Logger.h"
+#include "utils/StringUtils.h"
 
 #include "global.h"
 #include <physfs.h>
@@ -18,68 +19,15 @@
 
 #include "lua/LuaManager.h"
 
-//#include <cstring>
-
 using namespace std;
 
-// physfs debug helpers
-#define CHECK_ERROR(hint) {\
-	while (const char* err = PHYSFS_getLastError())\
-	{\
-		if (LOG) \
-			LOG->Warn("%s: %s", hint, err);\
-		else \
-			printf("%s: %s\n", hint, err);\
-	}\
-}
-
-#define LIST(f) {\
-	LOG->Debug("listing %s", f);\
-	char **list = PHYSFS_enumerateFiles(f);\
-	for (int i = 0; list[i] != NULL; i++)\
-	{\
-		LOG->Debug("%s", list[i]);\
-	}\
-}
+const char *Nepgear::FullName = "Nepgear";
+const char *Nepgear::UnixName = "nepgear";
 
 Nepgear::Nepgear(vector<string> &vArgs)
 {
-	int err = 0;
-
-	// Set the base dir for our VFS
-	err = PHYSFS_init(vArgs[0].c_str());
-
-	PHYSFS_permitSymbolicLinks(1);
-	string path = PHYSFS_getBaseDir();
-	path = path.substr(0, path.find_last_of("/"));
-	path = path.substr(0, path.find_last_of("/"));
-	path += "/game";
-	PHYSFS_mount(path.c_str(), NULL, 1);
-
-	path = PHYSFS_getUserDir();
-
-	// Default to standard unix path
-	string save_folder = ".nepgear";
-
-	// Set write dir to home and create save folder if it doesn't exist
-	PHYSFS_setWriteDir(path.c_str());
-	PHYSFS_mkdir(save_folder.c_str());
-
-	// Change write dir to our save folder
-	path += save_folder;
-	PHYSFS_setWriteDir(path.c_str());
-
-	PHYSFS_mount(path.c_str(), NULL, 0);
-	CHECK_ERROR("Initializing VFS");
-
-	// Make log folder
-	PHYSFS_mkdir("logs");
-
 	// Make sure the logger is available everywhere.
 	LOG = new Logger("logs/log.txt");
-
-	if (!err)
-		LOG->Error("Unable to initialize VFS");
 
 	// Scan arguments for any flags we must honor
 	// TODO: Handle this somewhere else.
@@ -91,15 +39,10 @@ Nepgear::Nepgear(vector<string> &vArgs)
 			LOG->ShowTraces(true);
 	}
 
-	path = PHYSFS_getBaseDir();
-	path += "Data/Shaders/";
-
-	err = glfwInit();
+	int err = glfwInit();
 	if (!err)
 		LOG->Error("glfw exploded");
 }
-#undef LIST
-#undef CHECK_ERROR
 
 Nepgear::~Nepgear()
 {
@@ -120,7 +63,6 @@ int Nepgear::Run()
 	WindowParams p { 960, 540 };
 	Window *window = new GLWindow();
 
-
 	display.SetRenderer(renderer);
 	if (!window->open(p))
 		return 1;
@@ -132,12 +74,8 @@ int Nepgear::Run()
 	screen.SetRenderer(renderer);
 
 	// Test!
-	string dir = "themes/default/";
-	PHYSFS_File *hnd = NULL;
-	PHYSFS_sint64 file_size = 0;
+	string dir = "/themes/default/";
 	LuaManager *lua = LuaManager::GetSingleton();
-
-	char *buffer;
 
 	char **list = PHYSFS_enumerateFiles(dir.c_str());
 	for (int i = 0; list[i] != NULL; i++)
@@ -146,24 +84,26 @@ int Nepgear::Run()
 		string file = dir + list[i];
 
 		// Get extension and filter out dirs and non-lua files.
-		size_t pos = file.find_last_of(".");
-		string ext = "";
+		string ext = utils::chop(file, ".", true);
 
-		if (pos != string::npos)
-			ext = file.substr(pos, file.length());
+		File f(file);
+		if (f.is_dir() || ext != "lua")
+			continue;
 
-		if (PHYSFS_isDirectory(file.c_str()) || ext != ".lua")
+		// Skip if we can't open the thing.
+		if (!f.open())
 			continue;
 
 		// Read lua file into buffer and run it
-		hnd			= PHYSFS_openRead(file.c_str());
-		file_size	= PHYSFS_fileLength(hnd);
-		buffer		= new char[file_size];
+		size_t length = f.length();
+		char  *buffer = new char[length];
+		f.read(buffer, length);
+		f.close();
 
-		PHYSFS_read(hnd, buffer, file_size, 1);
-		buffer[file_size] = '\0'; // XXX: .lua is appended to the buffer?
+		// XXX: ext is appended to this... nasty.
+		buffer[length] = '\0';
 
-		lua->Load(buffer, file_size, list[i]);
+		lua->Load(buffer, length, list[i]);
 
 		delete[] buffer;
 	}
@@ -192,12 +132,16 @@ int Nepgear::Run()
 	return 0;
 }
 
+const char *Nepgear::Arg0;
+
 int main(int argc, char **argv)
 {
 	// Build arguments into a vector before passing control
 	vector<string> args;
 	for (int i = 0; i<argc; i++)
 		args.push_back(string(argv[i]));
+
+	Nepgear::Arg0 = argv[0];
 
 	Nepgear rs(args);
 	return rs.Run();

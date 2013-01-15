@@ -2,9 +2,7 @@
 
 #include <vector>
 #include <string>
-
-// Helps prevent heap corruption.
-#define SAFE_DELETE(p) if( (p) != NULL ) delete (p); (p) = NULL;
+#include "global.h"
 
 class Nepgear
 {
@@ -13,6 +11,10 @@ public:
 	virtual ~Nepgear();
 
 	int Run();
+
+	static const char* Arg0;
+	static const char* FullName;
+	static const char* UnixName;
 };
 
 /**

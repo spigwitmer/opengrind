@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <glm/glm.hpp>
 
+#include "global.h"
+#include "utils/File.cpp"
 #include "utils/Logger.cpp"
 #include "utils/StringUtils.cpp"
 #include "renderer/gl30/ShaderStage.cpp"
@@ -10,13 +12,17 @@
 
 #include "helpers.h"
 
+const char *Nepgear::Arg0;
+
 int main(int argc, char **argv)
 {
+	Nepgear::Arg0 = argv[0];
+	LOG = new Logger("logs/shader-test.txt");
+
 	glfwInit();
 	GLFWwindow *w = glfwCreateWindow(960, 540, "Shader Test", NULL, NULL);
 	glfwMakeContextCurrent(w);
 	glxwInit();
-	init_physfs(argv[0]);
 
 	ShaderProgram p("Generic.Vertex.GL30", "Generic.Fragment.GL30");
 	{
@@ -56,11 +62,15 @@ int main(int argc, char **argv)
 		glfwWaitEvents();
 	}
 
-	glfwDestroyWindow(w);
-
 	// cleanup:
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(2, buf);
+
+	p.Cleanup();
+
+	glfwDestroyWindow(w);
+
+	SAFE_DELETE(LOG);
 
 	deinit_physfs();
 }

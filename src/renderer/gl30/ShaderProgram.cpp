@@ -7,15 +7,7 @@ using namespace std;
 
 ShaderProgram::~ShaderProgram()
 {
-	std::vector<ShaderStage*>::iterator it;
-	for (it = m_shaders.begin(); it != m_shaders.end(); ++it)
-	{
-		glDetachShader(m_object, (*it)->GetObject());
-		delete *it;
-	}
-
-	if (glIsProgram(m_object))
-		glDeleteProgram(m_object);
+	Cleanup();
 }
 
 ShaderProgram::ShaderProgram() {}
@@ -32,6 +24,19 @@ ShaderProgram::ShaderProgram(std::string vss, std::string fss)
 	Attach(fs);
 
 	CheckError();
+}
+
+void ShaderProgram::Cleanup()
+{
+	std::vector<ShaderStage*>::iterator it;
+	for (it = m_shaders.begin(); it != m_shaders.end(); ++it)
+	{
+		glDetachShader(m_object, (*it)->GetObject());
+		delete *it;
+	}
+
+	if (glIsProgram(m_object))
+		glDeleteProgram(m_object);
 }
 
 void ShaderProgram::SetVector3(std::string name, glm::vec3 vec)

@@ -9,3 +9,6 @@
 #define likely(x)	x
 #define unlikely(x)	x
 #endif
+
+// Helps prevent heap corruption.
+#define SAFE_DELETE(p) if( (p) != NULL ) delete (p); (p) = NULL;

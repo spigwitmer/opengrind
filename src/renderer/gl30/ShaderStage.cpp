@@ -1,11 +1,12 @@
 #include "Shader.h"
-#include "utils/Logger.h"
+#include "renderer/DisplayManager.h"
 #include "renderer/common/Error.h"
+#include "utils/Logger.h"
 #include "utils/StringUtils.h"
+#include "utils/File.h"
 
 #include <map>
 #include <sstream>
-#include <physfs.h>
 
 using namespace std;
 
@@ -36,27 +37,21 @@ namespace
 
 	string GetShaderSource(string path, string token)
 	{
-
-		if (!PHYSFS_exists(path.c_str()))
-		{
-			LOG->Warn("why can't I find this");
-			return string();
-		}
-
 		// Read in file from the VFS, convert to std::string
 		string src;
 		{
-			PHYSFS_File *file = PHYSFS_openRead(path.c_str());
+			File f(path);
+			if (!f.open())
+				LOG->Warn(f.get_last_error());
 
-			char *file_contents = new char[PHYSFS_fileLength(file)];
-			int got = PHYSFS_read(file, file_contents, 1, PHYSFS_fileLength(file));
-			(void)got;
-			//LOG->Debug("Read %i bytes from %s [=> %s]", got, key.c_str(), path.c_str());
+			size_t length = f.length();
+			char* buf = new char[length];
 
-			PHYSFS_close(file);
+			f.read(buf, length);
+			f.close();
 
-			src = file_contents;
-			delete[] file_contents;
+			src = buf;
+			delete[] buf;
 		}
 
 		vector<string> lines = utils::split(src, '\n');
@@ -100,9 +95,29 @@ namespace
 		for (size_t i = begin; i < end; ++i)
 			src += lines[i] + "\n";
 
-		LOG->Debug("Loading \"%s:%s\"", path.c_str(), token.c_str());
-
 		return src;
+	}
+
+	string ShaderToString(ShaderType shader)
+	{
+		string ret;
+		switch(shader)
+		{
+			case SHADER_VERTEX:
+				ret = "vertex";
+				break;
+			case SHADER_FRAGMENT:
+				ret = "fragment";
+				break;
+			case SHADER_GEOMETRY:
+				ret = "geometry";
+				break;
+			case SHADER_INVALID:
+			default:
+				assert(0);
+				break;
+		}
+		return ret;
 	}
 
 	GLenum ShaderToGLenum(ShaderType shader)
@@ -121,7 +136,7 @@ namespace
 				break;
 			case SHADER_INVALID:
 			default:
-				ret = (GLenum)-1;
+				assert(0);
 				break;
 		}
 		return ret;
@@ -154,6 +169,8 @@ ShaderStage::~ShaderStage()
 
 bool ShaderStage::Load(ShaderType type, string key)
 {
+	LOG->Trace("Loading " + ShaderToString(type) + " shader \"" + key + "\"");
+
 	string token = GetToken(key);
 	string path  = GetPath(key);
 	string src   = GetShaderSource(path, token);
@@ -164,11 +181,10 @@ bool ShaderStage::Load(ShaderType type, string key)
 
 	if (Compile())
 	{
-		LOG->Debug("Successfully loaded \"%s\"", path.c_str());
+		LOG->Debug("Successfully loaded \"" + key + "\"");
 		return true;
 	}
 
-	LOG->Debug("%s", src.c_str());
 	LOG->Error("Compile failed for \"%s:%s\"", path.c_str(), token.c_str());
 
 	return false;

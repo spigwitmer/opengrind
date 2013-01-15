@@ -46,6 +46,7 @@ class ShaderProgram : public ShaderBase
 {
 public:
 	virtual ~ShaderProgram();
+	void Cleanup();
 
 	ShaderProgram();
 	ShaderProgram(std::string vss, std::string fss);
