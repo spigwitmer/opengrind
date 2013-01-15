@@ -30,7 +30,7 @@ int LuaManager::Load(const char *sBuf, unsigned iSize, const char *sName, unsign
 
 	if(iRet != 0)
 	{
-		LOG->Error("[LUA] Error loading %s: %s", sName, lua_tostring(m_pLua, -1));
+		LOG->Error("Error loading %s: %s", sName, lua_tostring(m_pLua, -1));
 		lua_pop(m_pLua, 1);
 		return iRet;
 	}
@@ -40,12 +40,12 @@ int LuaManager::Load(const char *sBuf, unsigned iSize, const char *sName, unsign
 
 	if(iRet != 0)
 	{
-		LOG->Error("[LUA] Error running %s: %s", sName, lua_tostring(m_pLua, -1));
+		LOG->Error("Error running %s: %s", sName, lua_tostring(m_pLua, -1));
 		lua_pop(m_pLua, 1);
 		return iRet;
 	}
 
-	LOG->Trace("[LUA] Loaded %s.", sName);
+	LOG->Trace("Loaded \"%s\"", sName);
 
 	return 0;
 }
