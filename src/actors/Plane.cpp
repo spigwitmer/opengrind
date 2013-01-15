@@ -26,6 +26,7 @@ Plane::Plane() :
 	verts[2].tex = vec2(0, 1);
 	verts[3].tex = vec2(1, 1);
 
+	//renderer->GenerateObject();
 	renderer->GenerateBuffers(2, m_VBO);
 	renderer->Upload(m_VBO[0], VERTEX_BUFFER, sizeof(GLData)*4, &verts[0].pos.x);
 	renderer->Upload(m_VBO[1], INDEX_BUFFER,  sizeof(GLData)*4, &indices);
@@ -59,8 +60,9 @@ void Plane::DrawInternal()
 	if (!m_init)
 		return;
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO[1]);
+	// vao bind...
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO[1]);
 
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, NULL);
 }
