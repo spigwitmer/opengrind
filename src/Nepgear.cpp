@@ -94,10 +94,6 @@ Nepgear::Nepgear(vector<string> &vArgs)
 	path = PHYSFS_getBaseDir();
 	path += "Data/Shaders/";
 
-	//err = glswInit(); glsw_check;
-	//err = glswSetPath(path.c_str(), ".glsl"); glsw_check;
-	//err = glswAddDirectiveToken("GL30", "#version 130"); glsw_check;
-
 	err = glfwInit();
 	if (!err)
 		LOG->Error("glfw exploded");
