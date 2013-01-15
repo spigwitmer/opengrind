@@ -54,6 +54,7 @@ bool DisplayManager::OpenWindow()
 		//glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 		//glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0);
 		m_window = glfwCreateWindow(854, 480, "Rhythm-Station", NULL, NULL);
+		glfwMakeContextCurrent(m_window);
 
 		// Make sure we were able to create a rendering context.
 		if (!m_window)
