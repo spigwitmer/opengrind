@@ -4,7 +4,7 @@
 #include "input/ButtonState.h"
 #include <glm/glm.hpp>
 
-struct GLFWwindow;
+class Window;
 
 class InputManager
 {
@@ -14,7 +14,7 @@ public:
 
 	void DiscardQueue();
 
-	void connect(GLFWwindow*);
+	void connect(Window*);
 
 	void Update();
 
@@ -28,7 +28,7 @@ public:
 	glm::ivec2 &GetMousePos() const;
 
 private:
-	GLFWwindow *m_window;
+	Window *m_window;
 };
 
 /**

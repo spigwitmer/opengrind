@@ -1,7 +1,7 @@
 #include <GLXW/glxw.h>
 #include <vector>
 #include "utils/Logger.h"
-#include "display/DisplayManager.h"
+#include "renderer/DisplayManager.h"
 
 #include "Plane.h"
 
@@ -29,7 +29,8 @@ Plane::Plane() :
 	renderer->GenerateBuffers(2, m_VBO);
 	renderer->Upload(m_VBO[0], VERTEX_BUFFER, sizeof(GLData)*4, &verts[0].pos.x);
 	renderer->Upload(m_VBO[1], INDEX_BUFFER,  sizeof(GLData)*4, &indices);
-	
+
+	/*	
 	glGenBuffers(2, m_VBO);
 
 	// Oh, also this will probably crash or otherwise not work.
@@ -44,7 +45,7 @@ Plane::Plane() :
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint8_t)*4, &indices, GL_STATIC_DRAW);
-
+	*/
 	m_init = true;
 }
 

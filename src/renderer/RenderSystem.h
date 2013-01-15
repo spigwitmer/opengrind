@@ -19,7 +19,6 @@ public:
 
 	virtual void Init() { }
 
-
 	virtual void GenerateBuffers(int amount, GLuint *buffers) {}
 	virtual void Upload(GLuint buffer, BufferType type, size_t size, void* ptr) {}
 

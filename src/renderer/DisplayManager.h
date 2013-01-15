@@ -3,35 +3,22 @@
 
 #define GLFW_NO_GLU
 #include <GL/glfw3.h>
-#include <string>
-#include <map>
 
-#include "utils/Logger.h"
 #include "utils/Singleton.h"
-#include "renderer/RenderSystem.h"
+#include "RenderSystem.h"
+#include "Window.h"
 
 class DisplayManager : public Singleton<DisplayManager>
 {
 public:
-	DisplayManager();
-	
-	bool OpenWindow();
-	void CloseWindow();
-	GLFWwindow* GetWindow();
-	bool IsFocused();
+	void SetWindow(Window* window) { m_window = window; };
+	Window* GetWindow() const { return m_window; }
 
-	bool RequestedClose();
-	
-	void Flush();
-	
 	void SetRenderer(RenderSystem *renderer) { m_renderer = renderer; }
-
 	RenderSystem* GetRenderer() const { return m_renderer; }
 
 private:
-	GLFWwindow *m_window;
-	std::map<GLenum, GLint> m_attribs;
-
+	Window *m_window;
 	RenderSystem* m_renderer;
 };
 

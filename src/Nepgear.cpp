@@ -1,7 +1,6 @@
 #include <GLXW/glxw.h>
 
 #include "Nepgear.h"
-#include "display/DisplayManager.h"
 #include "screens/ScreenManager.h"
 #include "input/InputManager.h"
 
@@ -13,6 +12,7 @@
 #include <physfs.h>
 
 // XXX
+#include "renderer/DisplayManager.h"
 #include "renderer/RenderSystem.h"
 #include "renderer/gl30/RenderSystem_GL30.h"
 
@@ -108,6 +108,8 @@ Nepgear::~Nepgear()
 	PHYSFS_deinit();
 }
 
+#include "renderer/common/GLWindow.h"
+
 int Nepgear::Run()
 {
 	ScreenManager screen;
@@ -115,12 +117,15 @@ int Nepgear::Run()
 	InputManager input;
 
 	RenderSystem *renderer = new RenderSystem_GL30();
+	WindowParams p { 960, 540 };
+	Window *window = new GLWindow();
+
 
 	display.SetRenderer(renderer);
-	if (!display.OpenWindow())
+	if (!window->open(p))
 		return 1;
 
-	input.connect(display.GetWindow());
+	input.connect(window);
 
 	renderer->Init();
 
@@ -165,7 +170,7 @@ int Nepgear::Run()
 
 	screen.PushScreen("ScreenTest");
 
-	while (!display.RequestedClose())
+	while (!window->should_close())
 	{
 		if (unlikely(input.GetButton(RS_KEY_ESC)->IsDown()))
 			break;
@@ -173,7 +178,7 @@ int Nepgear::Run()
 		screen.Update();
 		screen.Draw();
 
-		glfwSwapBuffers(display.GetWindow());
+		glfwSwapBuffers((GLFWwindow*)window->handle);
 
 		// Break if user closed the window
 		input.Update();
@@ -182,7 +187,7 @@ int Nepgear::Run()
 	// Don't bother broadcasting messages after the window closes.
 	EventManager::ClearAll();
 
-	display.CloseWindow();
+	window->close();
 
 	return 0;
 }

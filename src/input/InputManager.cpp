@@ -2,6 +2,8 @@
 #include "utils/Logger.h"
 #include "events/EventManager.h"
 
+#include "renderer/Window.h"
+
 #include <vector>
 #include <GL/glfw3.h>
 
@@ -156,14 +158,14 @@ InputManager::InputManager()
 	g_vQueue.reserve(16);
 }
 
-void InputManager::connect(GLFWwindow *w)
+void InputManager::connect(Window *w)
 {
 	m_window = w;
 	// Set the callbacks up
-	glfwSetKeyCallback(w, KeyboardCallback);
-	glfwSetMouseButtonCallback(w, MouseButtonCallback);
-	glfwSetCursorPosCallback(w, MousePosCallback);
-	glfwSetScrollCallback(w, MouseScrollCallback);
+	glfwSetKeyCallback((GLFWwindow*)w->handle, KeyboardCallback);
+	glfwSetMouseButtonCallback((GLFWwindow*)w->handle, MouseButtonCallback);
+	glfwSetCursorPosCallback((GLFWwindow*)w->handle, MousePosCallback);
+	glfwSetScrollCallback((GLFWwindow*)w->handle, MouseScrollCallback);
 }
 
 InputManager::~InputManager()
