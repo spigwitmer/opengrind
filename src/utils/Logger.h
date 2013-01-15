@@ -4,8 +4,8 @@
 #include <cstdarg>
 #include <cstdio>
 #include <ctime>
-#include <physfs.h>
 #include <string>
+#include "utils/File.h"
 
 // Extra warnings, hm
 #define PRINTF(m,n) __attribute__((format(__printf__,m,n)))
@@ -36,25 +36,32 @@ class Logger
 {
 public:
 	// Constructor and destructor
-	Logger( const char *sPath );
+	Logger( std::string path );
 	virtual ~Logger();
-	
+
 	// Log functions
 	void Trace(const char *fmt, ...) PRINTF(2,3);
 	void Debug(const char *fmt, ...) PRINTF(2,3);
 	void Warn(const char *fmt, ...) PRINTF(2,3);
 	void Error(const char *fmt, ...) PRINTF(2,3);
+
+	// just some overloads
+	void Trace(std::string in) { Trace("%s", in.c_str()); }
+	void Debug(std::string in) { Debug("%s", in.c_str()); }
+	void Warn(std::string in) { Warn("%s", in.c_str()); }
+	void Error(std::string in) { Error("%s", in.c_str()); }
 	
 	void UseColors(bool flag) { m_use_colors = flag; }
 	void ShowTraces(bool flag) { m_show_traces = flag; }
+	void ShowDebug(bool flag) { m_show_debug = flag; }
 
 private:
 	// This one does all the real work
 	void Internal(std::string str, std::string message, ConsoleColor color, bool show = true);
 	
 	// The file for this log
-	PHYSFS_File *m_File;
-	bool m_use_colors, m_show_traces;
+	File *m_File;
+	bool m_use_colors, m_show_traces, m_show_debug;
 };
 
 // Convenience throughout the program, heh

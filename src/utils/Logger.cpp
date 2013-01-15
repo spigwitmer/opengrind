@@ -1,8 +1,11 @@
 #include "Logger.h"
+#include "Nepgear.h"
+
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <physfs.h>
 
 Logger *LOG = NULL;
 
@@ -33,42 +36,43 @@ using namespace std;
 		free(buf); \
 }
 
-Logger::Logger(const char *sPath)
+Logger::Logger(std::string path)
 {
-	m_File = PHYSFS_openWrite(sPath);
+	m_File = new File();
 
 	// Logger is borked if this happens
-	if (m_File == NULL)
+	if (!m_File->open(path, FileAccessMode_Write))
 	{
-		printf("%s\n", PHYSFS_getLastError());
+		printf("%s\n", m_File->get_last_error().c_str());
 		assert(0);
 		return;
 	}
 
 	UseColors(true);
 	ShowTraces(false);
+#if DEBUG
+	ShowDebug(true);
+#else
+	ShowDebug(false);
+#endif
 
 	time_t raw = time(NULL);
 	char sTime[25];
 
 	strftime(sTime, 25, "%m/%d/%Y @ %H:%M:%S", localtime(&raw));
 
-	Trace("------------------------------------------------------------");
-	Trace("-- Rhythm-Station log started at %s", sTime);
-	Trace("------------------------------------------------------------");
+	Trace("# %s log started at %s", Nepgear::FullName, sTime);
+
+	ShowTraces(true);
 }
 
 Logger::~Logger()
 {
 	ShowTraces(false);
 
-	Trace("------------------------------------------------------------");
-	Trace("-- Log finished --");
-	Trace("------------------------------------------------------------");
+	Trace("# Log finished");
 
-	// close & flush
-	PHYSFS_flush(m_File);
-	PHYSFS_close(m_File);
+	m_File->close();
 }
 
 void GetTime(char *sTime)
@@ -94,7 +98,7 @@ void Logger::Internal(string in, string message, ConsoleColor color, bool show)
 	str = stream.str();
 
 	// Write out buffer to file
-	PHYSFS_write(m_File, str.c_str(), str.length(), 1);
+	m_File->write((void*)str.c_str(), str.length());
 
 	// Write to console
 	if (!show)
@@ -143,7 +147,7 @@ void Logger::Debug(const char *in, ...)
 	string str;
 	FORMAT(str);
 
-	Internal(str, "Debug", FG_CYAN);
+	Internal(str, "Debug", FG_CYAN, m_show_debug);
 }
 
 void Logger::Warn(const char *in, ...)
