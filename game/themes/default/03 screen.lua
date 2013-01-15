@@ -1,0 +1,5 @@
+
+ScreenTest = {
+	Class="ScreenTestDrawing"
+}
+

@@ -1,0 +1,93 @@
+#pragma once
+
+// All the keys we handle
+enum RSButtons
+{
+	/* START : Keyboard keys */
+	
+	// 1 - 0
+	RS_KEY_1 = 0, RS_KEY_2, RS_KEY_3, RS_KEY_4, RS_KEY_5,
+	RS_KEY_6, RS_KEY_7, RS_KEY_8, RS_KEY_9, RS_KEY_0,
+	
+	// A - Z
+	RS_KEY_A, RS_KEY_B, RS_KEY_C, RS_KEY_D,
+	RS_KEY_E, RS_KEY_F, RS_KEY_G, RS_KEY_H,
+	RS_KEY_I, RS_KEY_J, RS_KEY_K, RS_KEY_L,
+	RS_KEY_M, RS_KEY_N, RS_KEY_O, RS_KEY_P,
+	RS_KEY_Q, RS_KEY_R, RS_KEY_S, RS_KEY_T,
+	RS_KEY_U, RS_KEY_V, RS_KEY_W, RS_KEY_X,
+	RS_KEY_Y, RS_KEY_Z,
+	
+	// F keys
+	RS_KEY_F1 , RS_KEY_F2 , RS_KEY_F3 , RS_KEY_F4 ,
+	RS_KEY_F5 , RS_KEY_F6 , RS_KEY_F7 , RS_KEY_F8 ,
+	RS_KEY_F9 , RS_KEY_F10, RS_KEY_F11, RS_KEY_F12,
+	RS_KEY_F13, RS_KEY_F14, RS_KEY_F15,
+	
+	// "Those nine in the middle"
+	RS_KEY_PRINT_SCREEN, RS_KEY_SCROLL_LOCK, RS_KEY_PAUSE,
+	RS_KEY_INSERT, RS_KEY_HOME, RS_KEY_PGUP,
+	RS_KEY_DELETE, RS_KEY_END, RS_KEY_PGDOWN,
+	
+	// Arrows
+	RS_KEY_LEFT,
+	RS_KEY_RIGHT,
+	RS_KEY_UP,
+	RS_KEY_DOWN,
+	
+	// Control keys (literally control, enter, shift, etc)
+	RS_KEY_CTRL_1, RS_KEY_CTRL_2, RS_KEY_ALT_1, RS_KEY_ALT_2, RS_KEY_MENU,
+	RS_KEY_SUPER_1, RS_KEY_SUPER_2, RS_KEY_SHIFT_1, RS_KEY_SHIFT_2,
+	RS_KEY_ENTER, RS_KEY_CAPS, RS_KEY_TAB, RS_KEY_BACKSPACE, RS_KEY_ESC, RS_KEY_SPACE,
+	
+	// Characters used in grammar (mostly)
+	RS_KEY_FORWARD_SLASH, RS_KEY_BACK_SLASH,
+	RS_KEY_COMMA, RS_KEY_PERIOD,
+	RS_KEY_GRAVE,
+	RS_KEY_LEFT_SQ_BRACKET, RS_KEY_RIGHT_SQ_BRACKET,
+	RS_KEY_HYPHEN, RS_KEY_EQUALS,
+	RS_KEY_SEMICOLON, RS_KEY_APOSTROPHE,
+	
+	// Keypad
+	RS_KEY_KP_0,
+	RS_KEY_KP_1, RS_KEY_KP_2, RS_KEY_KP_3,
+	RS_KEY_KP_4, RS_KEY_KP_5, RS_KEY_KP_6,
+	RS_KEY_KP_7, RS_KEY_KP_8, RS_KEY_KP_9,
+	RS_KEY_KP_NUMLOCK,
+	RS_KEY_KP_SLASH,
+	RS_KEY_KP_ASTERISK,
+	RS_KEY_KP_HYPHEN,
+	RS_KEY_KP_PLUS,
+	RS_KEY_KP_ENTER,
+	RS_KEY_KP_PERIOD,
+	
+	/* END : Keyboard keys
+	 * START : Mouse controls */
+	
+	// Buttons (support 8)
+	RS_MOUSE_1, RS_MOUSE_2, RS_MOUSE_3, RS_MOUSE_4,
+	RS_MOUSE_5, RS_MOUSE_6, RS_MOUSE_7, RS_MOUSE_8,
+	
+	// Scrollers
+	RS_SCROLL_UP, RS_SCROLL_DOWN,
+	RS_SCROLL_LEFT, RS_SCROLL_RIGHT,
+	
+	/* END: Mouse controls */
+	
+	// Max buttons
+	RS_INPUT_MAX, RS_KEY_INVALID
+};
+
+// All of our game inputs
+enum GameInput
+{
+	// TODO
+	
+	// Max
+	GI_INVALID, GI_MAX
+};
+
+/**
+ * Matt Vandermeulen, Colby Klein (c) 2011
+ * Licensed under the terms of the MIT license. See License.txt.
+ */
