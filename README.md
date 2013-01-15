@@ -5,3 +5,5 @@ Required libs
 * libgl1-mesa-dev (GL)
 * libopenal-dev (openal)
 * libphysfs-dev (physfs)
+
+If you'd like to use an IDE instead of makefiles, just generate the files as needed with premake (e.g. <code>$ premake4 codelite</code>)
