@@ -89,7 +89,7 @@ void ScreenManager::PushScreen(const std::string &sName)
 	lua_getglobal(L, sName.c_str());
 	if (!lua_istable(L, -1))
 	{
-		LOG->Error("No screen named \"%s\" found.", sName.c_str());
+		LOG->Error("No screen named \"%s\" found", sName.c_str());
 		return;
 	}
 
@@ -102,10 +102,10 @@ void ScreenManager::PushScreen(const std::string &sName)
 
 		if (it == GetMap()->end())
 		{
-			LOG->Error("Invalid screen class: \"%s\".", sClass.c_str());
+			LOG->Error("Invalid screen class: \"%s\"", sClass.c_str());
 			return;
 		}		
-		LOG->Trace("Creating screen \"%s\" (Class=\"%s\").", sName.c_str(), sClass.c_str());
+		LOG->Trace("Creating screen \"%s\" [class => \"%s\"]", sName.c_str(), sClass.c_str());
 
 		Timer t;
 
