@@ -104,17 +104,10 @@ void Logger::Internal(string in, string message, ConsoleColor color, bool show)
 	if (!show)
 		return;
 
-	if (!m_use_colors)
-	{
-		printf("%s", str.c_str());
-		return;
-	}
-
 	// Rebuild message with colors
 	stream.str("");
-	stream << sTime << " ";
 
-	if (color != FG_INVALID)
+	if (color != FG_INVALID && m_use_colors)
 	{
 		stream << "\x1b[" << color << ";1m" << message << ":\x1b[0m ";
 	}
