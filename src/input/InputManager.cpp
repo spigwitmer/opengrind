@@ -7,8 +7,6 @@
 #include <vector>
 #include <GL/glfw3.h>
 
-#include <GL/glfw3.h>
-
 // Translate GLFW keys to our own.
 static inline RSButtons TranslateGLFW(int i)
 {
