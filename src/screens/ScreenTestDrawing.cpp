@@ -19,6 +19,8 @@ ScreenTestDrawing::ScreenTestDrawing(string name) : Screen(name)
 {
 }
 
+GLuint tex;
+
 void ScreenTestDrawing::Init()
 {
 	glGenVertexArrays(1, &vao);
@@ -29,6 +31,28 @@ void ScreenTestDrawing::Init()
 	shader->Link();
 	shader->Bind();
 	
+
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	int size = 128;
+	unsigned *pixels = new unsigned[size];
+
+	for (int i = 0; i < size; ++i)
+	{
+		pixels[i] = (int((float(i)/size)*255) << 8) + (0xFF << 24);
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+
+	delete[] pixels;
+
 	glBindVertexArray(vao);
 	
 	float verts[] = { -1.0, -1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0 };
@@ -71,6 +95,7 @@ static glm::mat4 matrix(1.0);
 void ScreenTestDrawing::Draw()
 {
 	shader->SetMatrix4("ModelViewProjection", matrix);
+	shader->SetInteger("ColorTable", 0);
 
 	glBindVertexArray(vao);	
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL);	
