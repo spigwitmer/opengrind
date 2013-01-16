@@ -39,6 +39,20 @@ void ShaderProgram::Cleanup()
 		glDeleteProgram(m_object);
 }
 
+void ShaderProgram::SetFloat(std::string name, float f)
+{
+	glUniform1f(
+		glGetUniformLocation(m_object, name.c_str()), f
+	);
+}
+
+void ShaderProgram::SetInteger(std::string name, int i)
+{
+	glUniform1i(
+		glGetUniformLocation(m_object, name.c_str()), i
+	);
+}
+
 void ShaderProgram::SetVector3(std::string name, glm::vec3 vec)
 {
 	glUniform3fv(

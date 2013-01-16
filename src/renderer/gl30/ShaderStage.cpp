@@ -44,12 +44,15 @@ namespace
 			if (!f.open())
 				LOG->Warn(f.get_last_error());
 
-			size_t length = f.length();
+			// okay, what the fuck.
+			// TODO: fix/understand this.
+			size_t length = f.length()+1;
 			char* buf = new char[length];
 
-			f.read(buf, length);
+			f.read(buf, length-1);
 			f.close();
 
+			buf[length] = '\0';
 			src = buf;
 			delete[] buf;
 		}
@@ -94,6 +97,8 @@ namespace
 
 		for (size_t i = begin; i < end; ++i)
 			src += lines[i] + "\n";
+
+//		LOG->Debug(src);
 
 		return src;
 	}
