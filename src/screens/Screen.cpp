@@ -19,7 +19,7 @@ Screen::Screen(string sName) :
 
 Screen::~Screen()
 {
-	LOG->Trace("Deleted screen \"%s\".", m_name.c_str());
+	LOG->Trace("Deleted screen \"%s\"", m_name.c_str());
 }
 
 void Screen::Reset()

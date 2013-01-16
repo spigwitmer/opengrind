@@ -118,7 +118,7 @@ void ScreenManager::PushScreen(const std::string &sName)
 	}
 	else
 	{
-		LOG->Error("%s has no class! Skipping.", sName.c_str());
+		LOG->Error("%s has no class! Skipping", sName.c_str());
 	}
 }
 
@@ -133,7 +133,7 @@ void ScreenManager::ClearStack()
 {
 	while (!m_vScreenStack.empty()) PopScreen();
 
-	LOG->Trace("Cleared screen stack.");
+	LOG->Trace("Cleared screen stack");
 }
 
 /**
