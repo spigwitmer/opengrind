@@ -12,27 +12,9 @@ using namespace std;
 namespace
 {
 	// Calculate average FPS given a time and delta
-	const double UPDATE_INTERVAL = 2.0;
-
-	std::vector<double> times;
-
-	double avg_fps(double time, double delta)
-	{
-		double avg = 0.0;
-
-		if (!times.empty() && time - times[0] > UPDATE_INTERVAL)
-			times.clear();
-
-		// Calculate Average FPS.
-		times.push_back(delta);
-
-		for (size_t i = 0; i < times.size(); i++)
-			avg += times[i];
-
-		avg /= times.size();
-
-		return 1.0 / avg;
-	}
+	int frames = 1;
+	int last_fps = -1;
+	Timer frametimer;
 }
 
 MakeScreenMap *ScreenManager::GetMap()
@@ -41,10 +23,8 @@ MakeScreenMap *ScreenManager::GetMap()
 	return &g_ScreenMap;
 }
 
-ScreenManager::ScreenManager()
+ScreenManager::ScreenManager() : m_LastUpdate(0)
 {
-	m_LastUpdateRounded = 0;
-	m_LastUpdate = 0.0;
 }
 
 ScreenManager::~ScreenManager()
@@ -56,13 +36,24 @@ void ScreenManager::Update()
 {
 	double time = glfwGetTime();
 	double delta = time - m_LastUpdate;
-	double fps = avg_fps(time, delta);
 
-	if (int(time) % 1 == 0)
+	if (frametimer.Ago() > 1.0)
 	{
-		if (m_LastUpdateRounded != int(time))
-			LOG->Debug("Avg. FPS: %0.0f", glm::ceil(fps));
-		m_LastUpdateRounded = int(time);
+		frametimer.Touch();
+		last_fps = frames;
+		LOG->Debug("FPS: %d (%0.0fms)", frames, (1.0 / frames)*1000);
+		frames = 1;
+	}
+	frames++;
+
+	// if a frame takes more than twice the average, log it.
+	if (last_fps != -1)
+	{
+		double target = 1.0 / last_fps;
+		if (delta > target*2)
+		{
+			LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
+		}
 	}
 
 	m_LastUpdate = time;
