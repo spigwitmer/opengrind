@@ -70,6 +70,11 @@ File::File(string path, FileAccessMode fm)
 	}
 }
 
+File::~File()
+{
+	close();
+}
+
 bool File::mkdir()
 {
 	return (bool)PHYSFS_mkdir(filename.c_str());

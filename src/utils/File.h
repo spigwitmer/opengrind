@@ -15,6 +15,7 @@ class File
 {
 public:
 	File(std::string path = "", FileAccessMode fm = FileAccessMode_Read);
+	virtual ~File();
 
 	bool mkdir(); // fails if the path is not writable.
 
