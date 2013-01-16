@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define SCALE(x, l1, h1, l2, h2)	(((x) - (l1)) * ((h2) - (l2)) / ((h1) - (l1)) + (l2))
+
 REGISTER_SCREEN(ScreenTestDrawing)
 
 ShaderProgram *shader;
@@ -30,8 +32,6 @@ void ScreenTestDrawing::Init()
 	shader->BindAttrib(0, "Position");
 	shader->Link();
 	shader->Bind();
-	
-
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
@@ -41,15 +41,46 @@ void ScreenTestDrawing::Init()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	int size = 128;
-	unsigned *pixels = new unsigned[size];
+	size_t size = 128;
+	glm::vec4 *pixels = new glm::vec4[size];
 
-	for (int i = 0; i < size; ++i)
+	typedef pair<float, glm::vec4> stop;
+
+	vector<stop> stops;
+	stops.push_back(stop(0.00, glm::vec4(1.0, 0.0, 0.0, 1.0)));
+	stops.push_back(stop(1.00, glm::vec4(0.0, 0.0, 1.0, 1.0)));
+
+	size_t prev = 0;
+	size_t next = 0;
+
+	float factor = size / stops.size();
+	for (size_t i = 0; i < size; ++i)
 	{
-		pixels[i] = (int((float(i)/size)*255) << 8) + (0xFF << 24);
+		float progress = float(i)/size;
+
+		if (progress > stops[next].first)
+		{
+			prev = next;
+			next++;
+		}
+
+		float prev_scaled = prev * factor;
+		float next_scaled = next * factor;
+
+		float stop_progress = glm::max(float(i), 0.001f);
+		stop_progress -= prev_scaled;
+		stop_progress /= next_scaled;
+
+		glm::vec4 color = glm::mix(
+			stops[prev].second, stops[next].second,
+			stop_progress
+		);
+		pixels[i] = color;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, 1, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, 1, 0, GL_RGBA, GL_FLOAT,
+		glm::value_ptr(pixels[0])
+	);
 
 	delete[] pixels;
 
