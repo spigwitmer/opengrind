@@ -44,21 +44,21 @@ namespace
 			if (!f.open())
 				LOG->Warn(f.get_last_error());
 
-			// okay, what the fuck.
-			// TODO: fix/understand this.
-			size_t length = f.length()+1;
+			size_t length = f.length();
 			char* buf = new char[length];
 
-			f.read(buf, length-1);
+			f.read(buf, length);
 			f.close();
 
+			// make sure we've got a null terminator
 			buf[length] = '\0';
+
 			src = buf;
 			delete[] buf;
 		}
 
 		vector<string> lines = utils::split(src, '\n');
-		size_t begin = 0, end = lines.size()-1;
+		size_t begin = 0, end = lines.size();
 		bool found = false;
 
 		for (size_t i = 0; i < lines.size(); ++i)
@@ -97,8 +97,6 @@ namespace
 
 		for (size_t i = begin; i < end; ++i)
 			src += lines[i] + "\n";
-
-//		LOG->Debug(src);
 
 		return src;
 	}
