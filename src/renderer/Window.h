@@ -2,8 +2,8 @@
 
 struct WindowParams
 {
-	int width, height;
-
+	int width;
+	int height;
 };
 
 // designed as a thin wrapper around glfw.
@@ -15,4 +15,5 @@ public:
 	bool is_focused();
 	bool should_close();
 	void *handle;
+	WindowParams params;
 };

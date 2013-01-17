@@ -2,10 +2,12 @@
 #include "utils/Logger.h"
 #include "events/EventManager.h"
 
-#include "renderer/Window.h"
-
 #include <vector>
+#include <GLXW/glxw.h>
 #include <GL/glfw3.h>
+
+#include "renderer/DisplayManager.h"
+#include "renderer/Window.h"
 
 // Translate GLFW keys to our own.
 static inline RSButtons TranslateGLFW(int i)
@@ -141,10 +143,80 @@ static unsigned g_iQueuePtr = 0;
 static glm::ivec2 g_iMousePos;
 
 // Define our callbacks
-static void KeyboardCallback(GLFWwindow*, int, int);
-static void MouseButtonCallback(GLFWwindow*, int, int);
-static void MousePosCallback(GLFWwindow*, int, int);
-static void MouseScrollCallback(GLFWwindow*, double, double);
+namespace
+{
+	void KeyboardCallback(GLFWwindow*, int iButton, int iDown)
+	{
+		// Translate the button
+		RSButtons b = TranslateGLFW(iButton);
+		
+		if (b == RS_KEY_INVALID)
+		{
+			LOG->Warn("[Input] Unknown GLFW Key '%i'", iButton);
+			return;
+		}
+		
+		g_pButtons[b]->Press(!!iDown);
+		g_vQueue.push_back(g_pButtons[b]);
+	}
+
+	// Same thing, but for mouse.
+	void MouseButtonCallback(GLFWwindow*, int iButton, int iDown)
+	{
+		RSButtons b = TranslateGLFW(iButton);
+		
+		if (b == RS_KEY_INVALID)
+		{
+			LOG->Warn("[Input] Unknown GLFW Mouse button '%i'", iButton);
+			return;
+		}
+		
+		g_pButtons[b]->Press(!!iDown);	
+		g_vQueue.push_back(g_pButtons[b]);
+	}
+
+	void MousePosCallback(GLFWwindow*, int iPosX, int iPosY)
+	{
+		g_iMousePos.x = iPosX;
+		g_iMousePos.y = iPosY;
+	}
+
+	void MouseScrollCallback(GLFWwindow*, double iHorizontal, double iVertical)
+	{
+		/* Okay, we will press it, and add it to the queue...But it doesn't
+		 * get unpressed */
+		if (iHorizontal > 0)
+		{
+			g_pButtons[RS_SCROLL_RIGHT]->Press(true);
+			g_vQueue.push_back(g_pButtons[RS_SCROLL_RIGHT]);
+		}
+		else if (iHorizontal < 0)
+		{
+			g_pButtons[RS_SCROLL_LEFT]->Press(true);
+			g_vQueue.push_back(g_pButtons[RS_SCROLL_LEFT]);
+		}
+		
+		if (iVertical > 0)
+		{
+			g_pButtons[RS_SCROLL_UP]->Press(true);
+			g_vQueue.push_back(g_pButtons[RS_SCROLL_UP]);
+		}
+		else if (iVertical < 0)
+		{
+			g_pButtons[RS_SCROLL_DOWN]->Press(true);
+			g_vQueue.push_back(g_pButtons[RS_SCROLL_DOWN]);
+		}
+	}
+
+	void WindowResizeCallback(GLFWwindow* w, int width, int height)
+	{
+		DisplayManager *dm = DisplayManager::GetSingleton();
+		dm->SetViewport(glm::vec4(0, 0, width, height));
+		dm->GetRenderer()->UpdateViewport();
+		
+		EventManager::Broadcast("Resize");
+	}
+}
 
 InputManager::InputManager()
 {
@@ -159,11 +231,13 @@ InputManager::InputManager()
 void InputManager::connect(Window *w)
 {
 	m_window = w;
+
 	// Set the callbacks up
 	glfwSetKeyCallback((GLFWwindow*)w->handle, KeyboardCallback);
 	glfwSetMouseButtonCallback((GLFWwindow*)w->handle, MouseButtonCallback);
 	glfwSetCursorPosCallback((GLFWwindow*)w->handle, MousePosCallback);
 	glfwSetScrollCallback((GLFWwindow*)w->handle, MouseScrollCallback);
+	glfwSetWindowSizeCallback((GLFWwindow*)w->handle, WindowResizeCallback);
 }
 
 InputManager::~InputManager()
@@ -219,69 +293,6 @@ glm::ivec2 &InputManager::GetMousePos() const
 {
 	// Just get the position
 	return g_iMousePos;
-}
-
-static void KeyboardCallback(GLFWwindow*, int iButton, int iDown)
-{
-	// Translate the button
-	RSButtons b = TranslateGLFW(iButton);
-	
-	if (b == RS_KEY_INVALID)
-	{
-		LOG->Warn("[Input] Unknown GLFW Key '%i'", iButton);
-		return;
-	}
-	
-	g_pButtons[b]->Press(!!iDown);
-	g_vQueue.push_back(g_pButtons[b]);
-}
-
-// Same thing, but for mouse.
-static void MouseButtonCallback(GLFWwindow*, int iButton, int iDown)
-{
-	RSButtons b = TranslateGLFW(iButton);
-	
-	if (b == RS_KEY_INVALID)
-	{
-		LOG->Warn("[Input] Unknown GLFW Mouse button '%i'", iButton);
-		return;
-	}
-	
-	g_pButtons[b]->Press(!!iDown);	
-	g_vQueue.push_back(g_pButtons[b]);
-}
-
-static void MousePosCallback(GLFWwindow*, int iPosX, int iPosY)
-{
-	g_iMousePos.x = iPosX;
-	g_iMousePos.y = iPosY;
-}
-
-static void MouseScrollCallback(GLFWwindow*, double iHorizontal, double iVertical)
-{
-	/* Okay, we will press it, and add it to the queue...But it doesn't
-	 * get unpressed */
-	if (iHorizontal > 0)
-	{
-		g_pButtons[RS_SCROLL_RIGHT]->Press(true);
-		g_vQueue.push_back(g_pButtons[RS_SCROLL_RIGHT]);
-	}
-	else if (iHorizontal < 0)
-	{
-		g_pButtons[RS_SCROLL_LEFT]->Press(true);
-		g_vQueue.push_back(g_pButtons[RS_SCROLL_LEFT]);
-	}
-	
-	if (iVertical > 0)
-	{
-		g_pButtons[RS_SCROLL_UP]->Press(true);
-		g_vQueue.push_back(g_pButtons[RS_SCROLL_UP]);
-	}
-	else if (iVertical < 0)
-	{
-		g_pButtons[RS_SCROLL_DOWN]->Press(true);
-		g_vQueue.push_back(g_pButtons[RS_SCROLL_DOWN]);
-	}
 }
 
 /**

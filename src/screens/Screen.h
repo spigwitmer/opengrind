@@ -31,7 +31,7 @@ public:
 	// For derived classes only.
 	virtual void Init();
 	virtual void UpdateInternal(double delta);
-	virtual void HandleMessage(const std::string &name, const IEvent &evt);
+	virtual bool HandleEvent(const std::string &name, const IEvent &evt);
 	
 protected:
 	bool m_error;

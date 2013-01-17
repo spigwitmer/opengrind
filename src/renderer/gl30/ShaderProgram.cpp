@@ -53,9 +53,25 @@ void ShaderProgram::SetInteger(std::string name, int i)
 	);
 }
 
+void ShaderProgram::SetVector2(std::string name, glm::vec2 vec)
+{
+	glUniform2fv(
+		glGetUniformLocation(m_object, name.c_str()),
+		1, glm::value_ptr(vec)
+	);
+}
+
 void ShaderProgram::SetVector3(std::string name, glm::vec3 vec)
 {
 	glUniform3fv(
+		glGetUniformLocation(m_object, name.c_str()),
+		1, glm::value_ptr(vec)
+	);
+}
+
+void ShaderProgram::SetVector4(std::string name, glm::vec4 vec)
+{
+	glUniform4fv(
 		glGetUniformLocation(m_object, name.c_str()),
 		1, glm::value_ptr(vec)
 	);

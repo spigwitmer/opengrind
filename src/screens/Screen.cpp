@@ -15,6 +15,7 @@ Screen::Screen(string sName) :
 {
 	EventManager::Register("ScreenChanged", this);
 	EventManager::Register("Input", this);
+	EventManager::Register("Resize", this);
 }
 
 Screen::~Screen()
@@ -56,16 +57,17 @@ void Screen::Init()
 {
 }
 
-void Screen::HandleMessage(const string &name, const IEvent &evt)
+bool Screen::HandleEvent(const string &name, const IEvent &evt)
 {
 	if (name == "Input") {
-		Event<InputManager*> evt;
+		Event<InputManager*> evt = (Event<InputManager*>)evt;
 		while (evt.data->GetNextInput()) {
-			// TODO
+			LOG->Debug("foo");
 		}
 	}
 
 	LOG->Trace("Got message: %s", name.c_str());
+	return true;
 }
 
 void Screen::Push(ActorBase* obj)

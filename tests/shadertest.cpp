@@ -26,10 +26,12 @@ int main(int argc, char **argv)
 
 	ShaderProgram p("Generic.Vertex.GL30", "Generic.Fragment.GL30");
 	{
-		p.BindAttrib(0, "Position");
+		p.BindAttrib(0, "vPosition");
+		p.BindAttrib(0, "vCoords");
 		p.Link();
 		p.Bind();
 		p.SetMatrix4("ModelViewProjection", glm::mat4(1.0));
+		p.SetVector2("Viewport", glm::vec2(960, 540));
 	}
 
 	GLuint vao, buf[2];
@@ -38,7 +40,13 @@ int main(int argc, char **argv)
 		glGenBuffers(2, &buf[0]);
 		glBindVertexArray(vao);
 		
-		float verts[] = { -1.0, -1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0 };
+		float verts[] = {
+			// X Y Z U V
+			-1.0, -1.0, 0.0, 0.0, 0.0,
+			-1.0,  1.0, 0.0, 0.0, 1.0,
+			 1.0, -1.0, 0.0, 1.0, 0.0,
+			 1.0,  1.0, 0.0, 1.0, 1.0
+		};
 		unsigned indices[] = { 0, 1, 2, 3 };
 		
 		glBindBuffer(GL_ARRAY_BUFFER, buf[0]);
@@ -47,8 +55,11 @@ int main(int argc, char **argv)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf[1]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 		
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, 0);	
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)(sizeof(float)*0));
 		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float)*5, (void*)(sizeof(float)*3));
+		glEnableVertexAttribArray(1);
 	}
 	
 	CheckError();

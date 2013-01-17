@@ -3,7 +3,8 @@
 #include "renderer/RenderSystem.h"
 #include <string>
 #include "utils/Logger.h"
-#include <GLXW/glxw.h>
+
+class ShaderProgram;
 
 class RenderSystem_GL30 : public RenderSystem
 {
@@ -13,8 +14,12 @@ public:
 
 	void Init() {}
 
+	void SetUniforms(ShaderProgram *shader);
+	void UpdateViewport();
+
 	std::string GetName() const { return m_name; }
 
 protected:
 	std::string m_name;
+	glm::vec4 m_viewport;
 };

@@ -14,6 +14,8 @@ bool GLWindow::open(WindowParams p)
 	handle = (void*)glfwCreateWindow(p.width, p.height, "", NULL, NULL);
 	glfwMakeContextCurrent((GLFWwindow*)handle);
 
+	params = p;
+
 	// Make sure we were able to create a rendering context.
 	if (!handle)
 	{

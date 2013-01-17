@@ -52,9 +52,11 @@ public:
 	ShaderProgram(std::string vss, std::string fss);
 
 
-	void SetFloat(std::string name, float f);
 	void SetInteger(std::string name, int i);
+	void SetFloat(std::string name, float f);
+	void SetVector2(std::string name, glm::vec2 vec);
 	void SetVector3(std::string name, glm::vec3 vec);
+	void SetVector4(std::string name, glm::vec4 vec);
 	void SetMatrix4(std::string name, glm::mat4 matrix);
 	
 	void Attach(ShaderStage *shader);

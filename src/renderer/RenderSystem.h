@@ -3,6 +3,9 @@
 #include <GLXW/glxw.h>
 #include <string>
 #include "utils/Logger.h"
+#include <glm/glm.hpp>
+
+class ShaderProgram;
 
 enum BufferType
 {
@@ -21,6 +24,8 @@ public:
 
 	virtual void GenerateBuffers(int amount, GLuint *buffers) {}
 	virtual void Upload(GLuint buffer, BufferType type, size_t size, void* ptr) {}
+	virtual void SetUniforms(ShaderProgram *shader) {}
+	virtual void UpdateViewport() {}
 
 	virtual std::string GetName() const { return m_name; }
 

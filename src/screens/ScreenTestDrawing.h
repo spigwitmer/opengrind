@@ -14,7 +14,7 @@ public:
 	void Init();
 	
 	void UpdateInternal(double delta);
-	void HandleMessage(const std::string &name, const IEvent &evt);
+	bool HandleEvent(const std::string &name, const IEvent &evt);
 	
 	void Draw();
 	

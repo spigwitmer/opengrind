@@ -16,6 +16,7 @@
 #include "renderer/DisplayManager.h"
 #include "renderer/RenderSystem.h"
 #include "renderer/gl30/RenderSystem_GL30.h"
+#include "renderer/common/GLWindow.h"
 
 #include "lua/LuaManager.h"
 
@@ -51,27 +52,29 @@ Nepgear::~Nepgear()
 	PHYSFS_deinit();
 }
 
-#include "renderer/common/GLWindow.h"
-
 int Nepgear::Run()
 {
 	ScreenManager screen;
-	DisplayManager display;
+	DisplayManager *display = DisplayManager::GetSingleton();
 	InputManager input;
 
 	RenderSystem *renderer = new RenderSystem_GL30();
 	WindowParams p { 960, 540 };
 	Window *window = new GLWindow();
 
-	display.SetRenderer(renderer);
+	display->SetRenderer(renderer);
+	display->SetWindow(window);
+	screen.SetRenderer(renderer);
+
 	if (!window->open(p))
 		return 1;
+
+	display->SetViewport(glm::vec4(0, 0, p.width, p.height));
+	renderer->UpdateViewport();
 
 	input.connect(window);
 
 	renderer->Init();
-
-	screen.SetRenderer(renderer);
 
 	// Test!
 	string dir = "/themes/default/";
@@ -124,10 +127,10 @@ int Nepgear::Run()
 		input.Update();
 	}
 
-	// Don't bother broadcasting messages after the window closes.
-	EventManager::ClearAll();
-
 	window->close();
+
+	delete window;
+	delete renderer;
 
 	return 0;
 }
