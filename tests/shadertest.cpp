@@ -14,16 +14,24 @@
 
 const char *Nepgear::Arg0;
 
+static void resize(GLFWwindow *w, int width, int height)
+{
+	glViewport(0, 0, width, height);
+	ShaderProgram *p = (ShaderProgram*)glfwGetWindowUserPointer(w);
+	p->SetVector2("Viewport", glm::vec2(width, height));
+}
+
 int main(int argc, char **argv)
 {
 	Nepgear::Arg0 = argv[0];
 	LOG = new Logger("logs/shader-test.txt");
 
 	glfwInit();
-	glfwWindowHint(GLFW_RESIZABLE, 0);
 	GLFWwindow *w = glfwCreateWindow(960, 540, "Shader Test", NULL, NULL);
 	glfwMakeContextCurrent(w);
 	glxwInit();
+
+	glfwSetWindowSizeCallback(w, &resize);
 
 	ShaderProgram p("Mandelbrot.Vertex.GL30", "Mandelbrot.Fragment.GL30");
 	{
@@ -35,6 +43,8 @@ int main(int argc, char **argv)
 		p.SetVector2("Viewport", glm::vec2(960, 540));
 		p.SetInteger("ColorTable", 0);
 	}
+
+	glfwSetWindowUserPointer(w, &p);
 
 	GLuint vao, buf[2];
 	{
@@ -119,12 +129,11 @@ int main(int argc, char **argv)
 	}
 	CheckError();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL);
-	glfwSwapBuffers(w);
-
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL);
+		glfwSwapBuffers(w);
 		glfwWaitEvents();
 	}
 
