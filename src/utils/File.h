@@ -33,6 +33,9 @@ public:
 	std::string get_real_path();
 	std::string get_last_error();
 
+	static void init();
+	static void deinit();
+
 protected:
 	const char *last_error;
 	std::string filename;

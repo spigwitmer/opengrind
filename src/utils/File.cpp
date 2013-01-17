@@ -8,66 +8,73 @@
 
 using namespace std;
 
+void File::init()
+{
+	assert(!PHYSFS_isInit());
+
+	int success = 0;
+	string tmp, save_folder = string(".") + Nepgear::UnixName;
+
+	// Set the base dir for the VFS
+	success = PHYSFS_init(Nepgear::Arg0);
+	if (!success) goto _File_h_physfs_error;
+
+	/*
+	 * Set up some hopefully sane defaults:
+	 * Mount /game as the root for file access
+	 * Create ~/.Nepgear::UnixName for file writing, mount it.
+	 * Create logs folder.
+	 */
+	PHYSFS_permitSymbolicLinks(1);
+	tmp = PHYSFS_getBaseDir();
+	tmp = tmp.substr(0, tmp.find_last_of("/"));
+	tmp = tmp.substr(0, tmp.find_last_of("/"));
+	tmp += "/game";
+	PHYSFS_mount(tmp.c_str(), NULL, 1);
+
+	tmp = PHYSFS_getUserDir();
+
+	// Set write dir to home and create save folder if it doesn't exist
+	success = PHYSFS_setWriteDir(tmp.c_str());
+	success = PHYSFS_mkdir(save_folder.c_str());
+	if (!success) goto _File_h_physfs_error;
+
+	// Change write dir to our save folder
+	tmp += save_folder;
+	success = PHYSFS_setWriteDir(tmp.c_str());
+	if (!success) goto _File_h_physfs_error;
+
+	PHYSFS_mount(tmp.c_str(), NULL, 0);
+	if (success) goto _File_h_physfs_error;
+
+	// Make log folder
+	PHYSFS_mkdir("logs");
+
+	if (!success) return;
+
+	_File_h_physfs_error:
+	{
+		string err_log;
+		const char *err = PHYSFS_getLastError();
+		if (err)
+			err_log = err;
+
+		if (!err_log.empty())
+			printf("%s\n", err_log.c_str());
+	}
+}
+
+void File::deinit()
+{
+	assert(PHYSFS_isInit());
+	PHYSFS_deinit();
+}
+
 File::File(string path, FileAccessMode fm)
 {
 	filename = path;
 	mode = fm;
 	handle = NULL;
-
-	if (!PHYSFS_isInit())
-	{
-		int success = 0;
-		string tmp, save_folder = string(".") + Nepgear::UnixName;
-
-		// Set the base dir for the VFS
-		success = PHYSFS_init(Nepgear::Arg0);
-		if (!success) goto _File_h_physfs_error;
-
-		/*
-		 * Set up some hopefully sane defaults:
-		 * Mount /game as the root for file access
-		 * Create ~/.Nepgear::UnixName for file writing, mount it.
-		 * Create logs folder.
-		 */
-		PHYSFS_permitSymbolicLinks(1);
-		tmp = PHYSFS_getBaseDir();
-		tmp = tmp.substr(0, tmp.find_last_of("/"));
-		tmp = tmp.substr(0, tmp.find_last_of("/"));
-		tmp += "/game";
-		PHYSFS_mount(tmp.c_str(), NULL, 1);
-
-		tmp = PHYSFS_getUserDir();
-
-		// Set write dir to home and create save folder if it doesn't exist
-		success = PHYSFS_setWriteDir(tmp.c_str());
-		success = PHYSFS_mkdir(save_folder.c_str());
-		if (!success) goto _File_h_physfs_error;
-
-		// Change write dir to our save folder
-		tmp += save_folder;
-		success = PHYSFS_setWriteDir(tmp.c_str());
-		if (!success) goto _File_h_physfs_error;
-
-		PHYSFS_mount(tmp.c_str(), NULL, 0);
-		if (success) goto _File_h_physfs_error;
-
-		// Make log folder
-		PHYSFS_mkdir("logs");
-
-		if (!success) return;
-
-		_File_h_physfs_error:
-		{
-			string err_log = get_last_error();
-			if (!err_log.empty())
-			{
-				if (LOG)
-					LOG->Warn(err_log);
-				else
-					printf("%s\n", err_log.c_str());
-			}
-		}
-	}
 }
 
 File::~File()

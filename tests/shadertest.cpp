@@ -1,6 +1,5 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
-#include <unistd.h>
 #include <glm/glm.hpp>
 
 #include "global.h"
@@ -9,6 +8,7 @@
 #include "utils/StringUtils.cpp"
 #include "renderer/gl30/ShaderStage.cpp"
 #include "renderer/gl30/ShaderProgram.cpp"
+#include "renderer/common/GLWindow.cpp"
 
 #include "helpers.h"
 
@@ -24,14 +24,14 @@ static void resize(GLFWwindow *w, int width, int height)
 int main(int argc, char **argv)
 {
 	Nepgear::Arg0 = argv[0];
+	File::init();
+
 	LOG = new Logger("logs/shader-test.txt");
 
 	glfwInit();
-	GLFWwindow *w = glfwCreateWindow(960, 540, "Shader Test", NULL, NULL);
-	glfwMakeContextCurrent(w);
-	glxwInit();
-
-	glfwSetWindowSizeCallback(w, &resize);
+	GLWindow wnd;
+	if (!wnd.open(WindowParams { 960, 540 }))
+		return 1;
 
 	ShaderProgram p("Mandelbrot.Vertex.GL30", "Mandelbrot.Fragment.GL30");
 	{
@@ -44,6 +44,9 @@ int main(int argc, char **argv)
 		p.SetInteger("ColorTable", 0);
 	}
 
+	GLFWwindow *w = (GLFWwindow*)wnd.handle;
+	glfwSetWindowTitle(w, "Shader Test");
+	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
 
 	GLuint vao, buf[2];
@@ -149,5 +152,5 @@ int main(int argc, char **argv)
 
 	SAFE_DELETE(LOG);
 
-	deinit_physfs();
+	File::deinit();
 }

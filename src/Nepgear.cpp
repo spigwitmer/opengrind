@@ -27,6 +27,9 @@ const char *Nepgear::UnixName = "nepgear";
 
 Nepgear::Nepgear(vector<string> &vArgs)
 {
+	// Prepare VFS for use.
+	File::init();
+
 	// Make sure the logger is available everywhere.
 	LOG = new Logger("logs/log.txt");
 
@@ -49,7 +52,7 @@ Nepgear::~Nepgear()
 {
 	SAFE_DELETE(LOG);
 
-	PHYSFS_deinit();
+	File::deinit();
 }
 
 int Nepgear::Run()
