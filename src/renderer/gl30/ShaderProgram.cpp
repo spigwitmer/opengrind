@@ -7,12 +7,13 @@ using namespace std;
 
 ShaderProgram::~ShaderProgram()
 {
-	Cleanup();
+	if (!m_clean)
+		Cleanup();
 }
 
-ShaderProgram::ShaderProgram() {}
+ShaderProgram::ShaderProgram() : m_clean(false) {}
 
-ShaderProgram::ShaderProgram(std::string vss, std::string fss)
+ShaderProgram::ShaderProgram(std::string vss, std::string fss) : m_clean(false)
 {
 	ShaderStage *vs = new ShaderStage();
 	ShaderStage *fs = new ShaderStage();
@@ -28,6 +29,8 @@ ShaderProgram::ShaderProgram(std::string vss, std::string fss)
 
 void ShaderProgram::Cleanup()
 {
+	m_clean = true;
+
 	std::vector<ShaderStage*>::iterator it;
 	for (it = m_shaders.begin(); it != m_shaders.end(); ++it)
 	{

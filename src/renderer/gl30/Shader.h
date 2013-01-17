@@ -67,4 +67,5 @@ public:
 
 protected:
 	std::vector<ShaderStage*> m_shaders;
+	bool m_clean;
 };
