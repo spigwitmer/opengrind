@@ -32,17 +32,21 @@ end)();
 end)();
 
 -- tests
-(function(self)
-	project "OpenGrind-ShaderTest"
-	targetname "shadertest"
+function test(name)
+	local file = name:lower()
+	project("OpenGrind-"..name)
+	targetname(file)
 	targetdir "bin"
 	kind "WindowedApp"
 	language "C++"
-	files { "tests/shadertest.cpp" }
+	files { "tests/"..file..".cpp" }
 	libdirs { "extern/glfw3/src" }
 	links { "glfw3", "Xrandr", "X11", "GLXW", "GL", "physfs" }
 	includedirs { "src", "extern/glfw3/include", "extern/glxw/include" }
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
-end)();
+end
+
+test("ShaderTest")
+test("VFS")
