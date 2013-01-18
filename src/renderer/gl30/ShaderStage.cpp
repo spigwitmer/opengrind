@@ -44,17 +44,8 @@ namespace
 			if (!f.open())
 				LOG->Warn(f.get_last_error());
 
-			size_t length = f.length();
-			char* buf = new char[length];
-
-			f.read(buf, length);
+			src = f.read_string();
 			f.close();
-
-			// make sure we've got a null terminator
-			buf[length] = '\0';
-
-			src = buf;
-			delete[] buf;
 		}
 
 		vector<string> lines = utils::split(src, '\n');
