@@ -1,5 +1,6 @@
 solution "OpenGrind"
 configurations { "Debug", "Release" }
+defines { "DEBUG" }
 ;
 -- libs
 
@@ -14,6 +15,27 @@ configurations { "Debug", "Release" }
 	links { "GL" }
 end)();
 
+function ng_stuff()
+	links { "glfw3", "Xrandr", "X11", "lua5.1", "GLXW", "GL", "openal", "physfs" }
+	libdirs { "extern/glfw3/src" }
+	includedirs { "src", "/usr/include/lua5.1", "extern/glfw3/include", "extern/glxw/include" }
+end
+
+-- nepgear project
+(function(self)
+	project "Nepgear"
+	targetname "nepgear"
+	targetdir  "bin"
+	kind "StaticLib"
+	language "C++"
+	files { "src/**.cpp" }
+	excludes { "src/main.cpp", "src/screens/**" }
+	ng_stuff()
+
+	configuration { "linux", "gmake" }
+	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
+end)();
+
 -- main project
 (function(self)
 	project "OpenGrind"
@@ -21,11 +43,9 @@ end)();
 	targetdir  "bin"
 	kind "WindowedApp"
 	language "C++"
-	files { "src/**.cpp" }
-	defines { "DEBUG" }
-	libdirs { "extern/glfw3/src" }
-	links { "glfw3", "Xrandr", "X11", "lua5.1", "GLXW", "GL", "openal", "physfs" }
-	includedirs { "src", "/usr/include/lua5.1", "extern/glfw3/include", "extern/glxw/include" }
+	files { "src/main.cpp", "src/screens/**" }
+	links { "Nepgear" }
+	ng_stuff()
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
@@ -40,9 +60,8 @@ function test(name)
 	kind "WindowedApp"
 	language "C++"
 	files { "tests/"..file..".cpp" }
-	libdirs { "extern/glfw3/src" }
-	links { "glfw3", "Xrandr", "X11", "GLXW", "GL", "physfs" }
-	includedirs { "src", "extern/glfw3/include", "extern/glxw/include" }
+	links { "Nepgear" }
+	ng_stuff()
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }

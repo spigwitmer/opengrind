@@ -1,15 +1,17 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include <string>
+#include <map>
 
 #include "global.h"
 #include "Nepgear.cpp"
-#include "utils/File.cpp"
-#include "utils/Logger.cpp"
-#include "utils/StringUtils.cpp"
-#include "renderer/gl30/ShaderStage.cpp"
-#include "renderer/gl30/ShaderProgram.cpp"
-#include "renderer/common/GLWindow.cpp"
+#include "utils/File.h"
+#include "renderer/common/Error.h"
+#include "renderer/common/GLWindow.h"
+#include "renderer/gl30/Shader.h"
 
 #include "helpers.h"
 
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
 	
 	GLuint tex;
 	{
+		using namespace std;
+
 		glGenTextures(1, &tex);
 		glBindTexture(GL_TEXTURE_2D, tex);
 

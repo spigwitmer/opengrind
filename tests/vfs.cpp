@@ -1,6 +1,5 @@
-#include "Nepgear.cpp"
-#include "utils/File.cpp"
-#include "utils/Logger.cpp"
+#include "Nepgear.h"
+#include "utils/Logger.h"
 #include "helpers.h"
 
 int main(int argc, char **argv)
