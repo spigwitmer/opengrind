@@ -15,10 +15,33 @@ defines { "DEBUG" }
 	links { "GL" }
 end)();
 
+(function(self)
+	-- Note: This lib isn't provided directly from Unicode.org anymore.
+	-- Apparently, it's unmaintained and a bit buggy? Either way, it's handy
+	-- and SimpleINI wants it.
+	project "ConvertUTF"
+	targetname "convertutf"
+	targetdir "bin"
+	kind "StaticLib"
+	language "C"
+	includedirs { "extern/simpleini" }
+	files { "extern/simpleini/ConvertUTF.c" }
+end)();
+
 function ng_stuff()
-	links { "glfw3", "Xrandr", "X11", "lua5.1", "GLXW", "GL", "openal", "physfs" }
+	links {
+		"glfw3", "Xrandr", "X11", "lua5.1", "GLXW",
+		"GL", "openal", "physfs", "ConvertUTF",
+	}
 	libdirs { "extern/glfw3/src" }
-	includedirs { "src", "/usr/include/lua5.1", "extern/glfw3/include", "extern/glxw/include" }
+	includedirs {
+		"src",
+		"/usr/include/lua5.1",
+		"extern/glfw3/include",
+		"extern/glxw/include",
+		"extern/simpleini",
+		"extern/simpleopt"
+	}
 end
 
 -- nepgear project
