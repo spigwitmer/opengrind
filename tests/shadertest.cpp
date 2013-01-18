@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "global.h"
+#include "Nepgear.cpp"
 #include "utils/File.cpp"
 #include "utils/Logger.cpp"
 #include "utils/StringUtils.cpp"
@@ -11,8 +12,6 @@
 #include "renderer/common/GLWindow.cpp"
 
 #include "helpers.h"
-
-const char *Nepgear::Arg0;
 
 static void resize(GLFWwindow *w, int width, int height)
 {
@@ -23,12 +22,8 @@ static void resize(GLFWwindow *w, int width, int height)
 
 int main(int argc, char **argv)
 {
-	Nepgear::Arg0 = argv[0];
-	File::init();
+	Nepgear ng(argc, argv, "logs/shader-test.txt");
 
-	LOG = new Logger("logs/shader-test.txt");
-
-	glfwInit();
 	GLWindow wnd;
 	if (!wnd.open(WindowParams { 960, 540 }))
 		return 1;
@@ -150,7 +145,5 @@ int main(int argc, char **argv)
 
 	glfwDestroyWindow(w);
 
-	SAFE_DELETE(LOG);
-
-	File::deinit();
+	return 0;
 }

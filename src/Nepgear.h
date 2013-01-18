@@ -1,13 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include "global.h"
 
 class Nepgear
 {
 public:
-	Nepgear(std::vector<std::string> &vArguments);
+	Nepgear(const int argc, char **argv, const char* log_file);
 	virtual ~Nepgear();
 
 	int Run();

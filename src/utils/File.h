@@ -22,7 +22,10 @@ public:
 	bool open(std::string path = "", FileAccessMode fm = FileAccessMode_Invalid);
 	bool close(); // this CAN fail if writes were buffered
 
+	bool seek(size_t pos);
 	bool read(char *buf, size_t bytes, size_t *written = NULL);
+	std::string read_string(size_t start = 0, size_t end = 0);
+
 	bool write(void *data, size_t bytes);
 	bool flush();
 

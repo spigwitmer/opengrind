@@ -140,6 +140,13 @@ bool File::flush()
 	return (bool)PHYSFS_flush((PHYSFS_File*)handle);
 }
 
+bool File::seek(size_t pos)
+{
+	if (!is_open())
+		return 0;
+	return (bool)PHYSFS_seek((PHYSFS_File*)handle, pos);
+}
+
 bool File::read(char *buf, size_t bytes, size_t *got)
 {
 	if (!is_open())
@@ -159,6 +166,29 @@ bool File::read(char *buf, size_t bytes, size_t *got)
 	LOG->Debug("[%s] %s", filename.c_str(), err.c_str());
 
 	return false;
+}
+
+string File::read_string(size_t start, size_t end)
+{
+	size_t length = this->length();
+	char* buf = new char[length];
+
+	if (end > length)
+		LOG->Warn("Attempted to seek past end of file!");
+	if (end <= start || end == 0)
+		end = length;
+
+	seek(start);
+	read(buf, end - start);
+	seek(0);
+
+	// make sure we've got a null terminator
+	buf[length] = '\0';
+
+	string ret = buf;
+	delete[] buf;
+
+	return ret;
 }
 
 bool File::write(void* data, size_t bytes)
