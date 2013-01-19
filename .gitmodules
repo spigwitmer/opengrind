@@ -4,3 +4,6 @@
 [submodule "extern/glfw3"]
 	path = extern/glfw3
 	url = https://github.com/elmindreda/glfw.git
+[submodule "extern/iqm"]
+	path = extern/iqm
+	url = https://github.com/lsalzman/iqm.git
