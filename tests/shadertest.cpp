@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	Nepgear ng(argc, argv, "logs/shader-test.txt");
 
 	GLWindow wnd;
-	if (!wnd.open(WindowParams { 960, 540 }))
+	if (!wnd.open(WindowParams { 960, 540 }, "Shader Test"))
 		return 1;
 
 	ShaderProgram p("Mandelbrot.Vertex.GL30", "Mandelbrot.Fragment.GL30");
@@ -42,7 +42,6 @@ int main(int argc, char **argv)
 	}
 
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
-	glfwSetWindowTitle(w, "Shader Test");
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
 

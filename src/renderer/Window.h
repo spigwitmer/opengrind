@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 struct WindowParams
 {
 	int width;
@@ -10,7 +12,7 @@ struct WindowParams
 class Window
 {
 public:
-	virtual bool open(WindowParams) = 0;
+	virtual bool open(WindowParams, std::string) = 0;
 	void close();
 	bool is_focused();
 	bool should_close();

@@ -40,7 +40,7 @@ static int run()
 	display->SetWindow(window);
 	screen.SetRenderer(renderer);
 
-	if (!window->open(p))
+	if (!window->open(p, "OpenGrind"))
 		return 1;
 
 	display->SetViewport(glm::vec4(0, 0, p.width, p.height));

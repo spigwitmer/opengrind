@@ -6,5 +6,5 @@
 class GLWindow : public Window
 {
 public:
-	bool open(WindowParams);
+	bool open(WindowParams, std::string title);
 };

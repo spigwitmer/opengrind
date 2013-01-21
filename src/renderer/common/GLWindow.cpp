@@ -4,14 +4,14 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
 
-bool GLWindow::open(WindowParams p)
+bool GLWindow::open(WindowParams p, std::string title)
 {
 	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 	glfwWindowHint(GLFW_STENCIL_BITS, 8);
 	glfwWindowHint(GLFW_SAMPLES, 0);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 
-	handle = (void*)glfwCreateWindow(p.width, p.height, "", NULL, NULL);
+	handle = (void*)glfwCreateWindow(p.width, p.height, title.c_str(), NULL, NULL);
 	glfwMakeContextCurrent((GLFWwindow*)handle);
 
 	params = p;
