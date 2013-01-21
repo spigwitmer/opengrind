@@ -12,7 +12,7 @@ using namespace std;
 namespace
 {
 	// Calculate average FPS given a time and delta
-	int frames = 1;
+	int frames = 0;
 	int last_fps = -1;
 	Timer frametimer;
 }
@@ -41,8 +41,8 @@ void ScreenManager::Update()
 	{
 		frametimer.Touch();
 		last_fps = frames;
-		LOG->Debug("FPS: %d (%0.0fms)", frames, (1.0 / frames)*1000);
-		frames = 1;
+		LOG->Debug("FPS: %d (%0.2fms)", frames, (1.0 / frames)*1000);
+		frames = 0;
 	}
 	frames++;
 
