@@ -30,7 +30,7 @@ static int run()
 {
 	ScreenManager screen;
 	DisplayManager *display = DisplayManager::GetSingleton();
-	InputManager input;
+	InputManager *input = InputManager::GetSingleton();
 
 	RenderSystem *renderer = new RenderSystem_GL30();
 	WindowParams p { 960, 540 };
@@ -46,7 +46,7 @@ static int run()
 	display->SetViewport(glm::vec4(0, 0, p.width, p.height));
 	renderer->UpdateViewport();
 
-	input.connect(window);
+	input->connect(window);
 
 	renderer->Init();
 
@@ -90,16 +90,16 @@ static int run()
 
 	while (!window->should_close())
 	{
-		if (unlikely(input.GetButton(RS_KEY_ESC)->IsDown()))
+		if (unlikely(input->GetButton(RS_KEY_ESC)->IsDown()))
 			break;
 
-		screen.Update();
+		screen.Update(window->is_focused());
 		screen.Draw();
 
 		glfwSwapBuffers((GLFWwindow*)window->handle);
 
 		// Break if user closed the window
-		input.Update();
+		input->Update();
 	}
 
 	window->close();
@@ -112,6 +112,6 @@ static int run()
 
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "logs/opengrind.txt");
+	Nepgear ng(argc, argv, "opengrind.log");
 	return run();
 }

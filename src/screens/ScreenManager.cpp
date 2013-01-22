@@ -32,27 +32,32 @@ ScreenManager::~ScreenManager()
 	ClearStack();
 }
 
-void ScreenManager::Update()
+void ScreenManager::Update(bool focus)
 {
+	if (!focus) usleep(1000*75);
+
 	double time = glfwGetTime();
 	double delta = time - m_LastUpdate;
 
-	if (frametimer.Ago() > 1.0)
+	if (focus)
 	{
-		frametimer.Touch();
-		last_fps = frames;
-		LOG->Debug("FPS: %d (%0.2fms)", frames, (1.0 / frames)*1000);
-		frames = 0;
-	}
-	frames++;
-
-	// if a frame takes more than twice the average, log it.
-	if (last_fps != -1)
-	{
-		double target = 1.0 / last_fps;
-		if (delta > target*2)
+		if (frametimer.Ago() > 1.0)
 		{
-			LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
+			frametimer.Touch();
+			last_fps = frames;
+			//LOG->Debug("FPS: %d (%0.2fms)", frames, (1.0 / frames)*1000);
+			frames = 0;
+		}
+		frames++;
+
+		// if a frame takes more than twice the average, log it.
+		if (last_fps != -1)
+		{
+			double target = 1.0 / last_fps;
+			if (delta > target*2)
+			{
+				LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
+			}
 		}
 	}
 

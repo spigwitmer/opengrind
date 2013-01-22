@@ -24,7 +24,7 @@ static void resize(GLFWwindow *w, int width, int height)
 
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "logs/shader-test.txt");
+	Nepgear ng(argc, argv, "shader-test.log");
 
 	GLWindow wnd;
 	if (!wnd.open(WindowParams { 960, 540 }, "Shader Test"))

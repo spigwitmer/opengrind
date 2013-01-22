@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "logs/vfs-test.txt");
+	Nepgear ng(argc, argv, "vfs-test.log");
 	LOG->ShowTraces(true);
 
 	File f("tests");

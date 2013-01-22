@@ -22,7 +22,10 @@ Nepgear::Nepgear(const int argc, char **argv, const char *log_file)
 	File::init();
 
 	// Make sure the logger is available everywhere.
-	LOG = new Logger(log_file);
+	string log_path = "logs/";
+	log_path += log_file;
+
+	LOG = new Logger(log_path.c_str());
 
 	// Scan arguments for any flags we must honor
 	// TODO: Handle this somewhere else.

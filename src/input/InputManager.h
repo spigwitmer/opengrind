@@ -2,11 +2,12 @@
 
 #include "input/Inputs.h"
 #include "input/ButtonState.h"
+#include "utils/Singleton.h"
 #include <glm/glm.hpp>
 
 class Window;
 
-class InputManager
+class InputManager : public Singleton<InputManager>
 {
 public:
 	InputManager();

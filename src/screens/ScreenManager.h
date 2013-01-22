@@ -19,7 +19,7 @@ public:
 	ScreenManager();
 	virtual ~ScreenManager();
 
-	void Update();
+	void Update(bool focus);
 	void Draw();
 
 	void PushScreen(const std::string &sName);

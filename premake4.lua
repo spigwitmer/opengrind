@@ -15,7 +15,7 @@ defines { "DEBUG" }
 	links { "GL" }
 end)();
 
-(function(self)
+(function()
 	-- Note: This lib isn't provided directly from Unicode.org anymore.
 	-- Apparently, it's unmaintained and a bit buggy? Either way, it's handy
 	-- and SimpleINI wants it.
@@ -40,12 +40,13 @@ function ng_stuff()
 		"extern/glfw3/include",
 		"extern/glxw/include",
 		"extern/simpleini",
-		"extern/simpleopt"
+		"extern/simpleopt",
+		"extern/iqm"
 	}
 end
 
 -- nepgear project
-(function(self)
+(function()
 	project "Nepgear"
 	targetname "nepgear"
 	targetdir  "bin"
@@ -60,7 +61,7 @@ end
 end)();
 
 -- main project
-(function(self)
+(function()
 	project "OpenGrind"
 	targetname "opengrind"
 	targetdir  "bin"
@@ -68,6 +69,12 @@ end)();
 	language "C++"
 	files { "src/main.cpp", "src/screens/**" }
 	links { "Nepgear" }
+
+	-- awesomium stuff
+	includedirs { "/home/colby/src/awesomium_v1.6.5_sdk_linux64/include" }
+	libdirs { "./bin" }
+	links { "jpeg-ng", "awesomium-1.6.5" }
+
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
@@ -92,3 +99,4 @@ end
 
 test("ShaderTest")
 test("VFS")
+test("ModelLoader")

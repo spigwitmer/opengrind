@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../common/reset.css" />
+	<style type="text/css">
+		#header {
+			width: 500px;
+			margin: 0 auto;
+		}
+		#menu {
+			background: rgba(200, 255, 100, 0.25);
+		}
+		#menu li {
+			font-size: 200%;
+			font-weight: bold;
+			font-style: italic;
+			color: #e7f002;
+			-webkit-text-stroke: 3px #1e4121; /*8ace2b;*/
+			padding: 15px;
+			position: relative;
+			text-shadow: 2px 2px 0 #1e4121;
+			background-image: -webkit-linear-gradient(top, white, black);
+		}
+		#menu li::after {
+			position: absolute;
+			left: 15px;
+			content: "Start Game";
+			-webkit-text-stroke: 0;
+		}
+	</style>
+</head>
+<body>
+	<div id="header">
+		<img src="../common/opengrind-500.png" />
+	</div>
+	<ul id="menu">
+		<li>Start Game</li>
+	</ul>
+</body>
+</html>

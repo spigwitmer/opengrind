@@ -1,5 +1,6 @@
 
 ScreenTest = {
-	Class="ScreenTestDrawing"
+	--Class="ScreenTestDrawing"
+	Class="ScreenWebOverlay"
 }
 

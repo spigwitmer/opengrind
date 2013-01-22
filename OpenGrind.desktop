@@ -3,12 +3,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Terminal=false
-Exec=/home/colby/src/opengrind/bin/opengrind
 Name=OpenGrind
-Comment=OpenGrind
+Exec=/home/colby/src/opengrind/bin/opengrind-wrapper
 Icon=/home/colby/src/opengrind/icons/512x512/apps/opengrind.png
-StartupNotify=true
-NoDisplay=false
-;Actions=Window;Document;
-;MimeType=text/plain;
+Actions=Debug
+
+[Desktop Action Debug]
+Name=Run With Debug Console
+Exec=/home/colby/src/opengrind/bin/opengrind-wrapper
+Terminal=true
