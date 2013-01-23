@@ -49,28 +49,23 @@ Logger::Logger(std::string path)
 	}
 
 	UseColors(true);
-	ShowTraces(false);
+	ShowTraces(true);
 #if DEBUG
 	ShowDebug(true);
 #else
 	ShowDebug(false);
 #endif
 
-	time_t raw = time(NULL);
-	char sTime[25];
+//	time_t raw = time(NULL);
+//	char sTime[25];
+//	strftime(sTime, 25, "%m/%d/%Y @ %H:%M:%S", localtime(&raw));
 
-	strftime(sTime, 25, "%m/%d/%Y @ %H:%M:%S", localtime(&raw));
-
-	Trace("# %s log started at %s", Nepgear::FullName, sTime);
-
-	ShowTraces(true);
+	Internal(string("# ") + Nepgear::FullName + " log started", "", FG_INVALID, false, false);
 }
 
 Logger::~Logger()
 {
-	ShowTraces(false);
-
-	Trace("# Log finished");
+	Internal("# Log finished", "", FG_INVALID, false, false);
 
 	m_File->close();
 }
@@ -80,16 +75,18 @@ void GetTime(char *sTime)
 	time_t raw = time(NULL);
 
 	// Format the time (mm/dd hh:mm:ss) i.e. 12/30 06:24:50
-	strftime(sTime, 25, "[%H:%M:%S]", localtime(&raw));
+	strftime(sTime, 25, "%H:%M:%S", localtime(&raw));
 }
 
-void Logger::Internal(string in, string message, ConsoleColor color, bool show)
+void Logger::Internal(string in, string message, ConsoleColor color, bool show, bool time)
 {
 	ostringstream stream;
 	string str;
 	char sTime[25];
 
-	GetTime(sTime);
+	if (time)
+		GetTime(sTime);
+	else sTime[0] = '\0';
 
 	stream << sTime << " ";
 	if (message.length() > 1)

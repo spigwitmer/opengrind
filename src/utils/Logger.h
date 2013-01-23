@@ -57,7 +57,7 @@ public:
 
 private:
 	// This one does all the real work
-	void Internal(std::string str, std::string message, ConsoleColor color, bool show = true);
+	void Internal(std::string str, std::string message, ConsoleColor color, bool show = true, bool time = true);
 	
 	// The file for this log
 	File *m_File;
