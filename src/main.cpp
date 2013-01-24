@@ -26,14 +26,35 @@ const char *Nepgear::FullName = "Nepgear";
 const char *Nepgear::UnixName = "nepgear";
 const char *Nepgear::Arg0;
 
+class PrefsManager : public Singleton<PrefsManager>
+{
+public:
+	int GetInteger(std::string section, std::string key)
+	{
+		// XXX: polyfill until I add this for real
+		if (key == "Width")
+			return 1280;
+		else if (key == "Height")
+			return 720;
+		return 0;
+	}
+};
+
 static int run()
 {
 	ScreenManager screen;
-	DisplayManager *display = DisplayManager::GetSingleton();
-	InputManager *input = InputManager::GetSingleton();
+
+	// XXX: I don't like singletons, but I like actually getting things done.
+	DisplayManager	*display = DisplayManager::GetSingleton();
+	InputManager	*input   = InputManager::GetSingleton();
+	LuaManager		*lua     = LuaManager::GetSingleton();
+	PrefsManager	*prefs   = PrefsManager::GetSingleton();
 
 	RenderSystem *renderer = new RenderSystem_GL30();
-	WindowParams p { 960, 540 };
+	WindowParams p {
+		prefs->GetInteger("Display", "Width"),
+		prefs->GetInteger("Display", "Height")
+	};
 	Window *window = new GLWindow();
 
 	display->SetRenderer(renderer);
@@ -52,15 +73,13 @@ static int run()
 
 	// Test!
 	string dir = "/themes/default/";
-	LuaManager *lua = LuaManager::GetSingleton();
 
 	char **list = PHYSFS_enumerateFiles(dir.c_str());
 	for (int i = 0; list[i] != NULL; i++)
 	{
-		// Expand path
-		string file = dir + list[i];
+		string file = dir + list[i]; // full path.
 
-		// Get extension and filter out dirs and non-lua files.
+		// We don't need dirs or anything but Lua files, here.
 		string ext = utils::chop(file, ".", true);
 
 		File f(file);
@@ -68,22 +87,11 @@ static int run()
 			continue;
 
 		// Skip if we can't open the thing.
-		if (!f.open())
-			continue;
-
-		// Read lua file into buffer and run it
-		size_t length = f.length();
-		char  *buffer = new char[length];
-
-		f.read(buffer, length);
-		f.close();
-
-		// XXX: ext is appended to this... nasty.
-		buffer[length] = '\0';
-
-		lua->Load(buffer, length, list[i]);
-
-		delete[] buffer;
+		if (f.open())
+		{
+			lua->Load(f.read_string(), list[i]);
+			f.close();
+		}
 	}
 
 	screen.PushScreen("ScreenTest");
