@@ -2,6 +2,7 @@
 
 #include "utils/Singleton.h"
 #include <vector>
+#include <string>
 
 extern "C"
 {
@@ -24,6 +25,7 @@ public:
 
 	// Loads a chunk, and runs it
 	int Load(const char *sBuf, unsigned iSize, const char *sName, unsigned iArgs = 0, unsigned iRet = 0);
+	int Load(std::string buf, std::string name, unsigned args = 0, unsigned ret = 0);
 
 	// Register a class to be created
 	void Register(LuaRegisterFn fn);

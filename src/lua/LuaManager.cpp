@@ -24,6 +24,11 @@ LuaManager::~LuaManager()
 	lua_close(m_pLua);
 }
 
+int LuaManager::Load(string buf, string name, unsigned args, unsigned rets)
+{
+	return Load(buf.c_str(), buf.length(), name.c_str(), args, rets);
+}
+
 int LuaManager::Load(const char *sBuf, unsigned iSize, const char *sName, unsigned iArgs, unsigned iRets)
 {
 	int iRet = luaL_loadbuffer(m_pLua, sBuf, iSize, sName);
