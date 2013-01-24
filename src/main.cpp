@@ -36,6 +36,8 @@ public:
 			return 1280;
 		else if (key == "Height")
 			return 720;
+		else if (key == "Fullscreen")
+			return 1;
 		return 0;
 	}
 };
@@ -53,7 +55,9 @@ static int run()
 	RenderSystem *renderer = new RenderSystem_GL30();
 	WindowParams p {
 		prefs->GetInteger("Display", "Width"),
-		prefs->GetInteger("Display", "Height")
+		prefs->GetInteger("Display", "Height"),
+		prefs->GetInteger("Display", "Fullscreen"),
+		prefs->GetInteger("Display", "FullscreenMonitor"),
 	};
 	Window *window = new GLWindow();
 

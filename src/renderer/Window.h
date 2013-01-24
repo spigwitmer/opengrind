@@ -6,6 +6,9 @@ struct WindowParams
 {
 	int width;
 	int height;
+
+	int fullscreen;
+	int fullscreen_monitor;
 };
 
 // designed as a thin wrapper around glfw.

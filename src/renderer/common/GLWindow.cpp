@@ -11,7 +11,18 @@ bool GLWindow::open(WindowParams p, std::string title)
 	glfwWindowHint(GLFW_SAMPLES, 0);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 
-	handle = (void*)glfwCreateWindow(p.width, p.height, title.c_str(), NULL, NULL);
+	int count;
+	GLFWmonitor **ml = glfwGetMonitors(&count);
+	GLFWmonitor *m = NULL;
+
+	if (p.fullscreen)
+	{
+		m = glfwGetPrimaryMonitor();
+		if (p.fullscreen_monitor && p.fullscreen_monitor <= count)
+			m = ml[p.fullscreen_monitor-1];
+	}
+
+	handle = (void*)glfwCreateWindow(p.width, p.height, title.c_str(), m, NULL);
 	glfwMakeContextCurrent((GLFWwindow*)handle);
 
 	params = p;
