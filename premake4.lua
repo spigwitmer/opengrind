@@ -32,7 +32,9 @@ end)();
 	project "Lua"
 	targetname "lua-ng"
 	targetdir "bin"
-	defines { "_CRT_SECURE_NO_WARNINGS" }
+	if os.is("windows") then
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+	end
 	kind "StaticLib"
 	language "C"
 	includedirs { "extern/lua/src" }
@@ -42,11 +44,15 @@ end)();
 
 function ng_stuff()
 	links {
-		"glfw3", "Xrandr", "X11", "lua5.1", "GLXW",
-		"openal", "physfs", "ConvertUTF", "Lua"
+		"glfw3", "Xrandr", "X11", "GLXW", "Lua",
+		"openal", "physfs", "ConvertUTF"
 	}
 	if os.is("windows") then
 		links { "opengl32" }
+	elseif os.is("macosx") then
+		links { "OpenGL.framework" }
+	else
+		links { "GL" }
 	end
 	libdirs { "extern/glfw3/src" }
 	includedirs {
