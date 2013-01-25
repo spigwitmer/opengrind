@@ -1,4 +1,18 @@
+# makefiles
 *.make
 Makefile
+
+# msvc stuff
+*.vcproj
+*.sln
+*.user
+*.suo
+*.ncb
+
+# cmake junk
+CMakeCache.txt
+
+# bins
+*.exe
 obj
 bin

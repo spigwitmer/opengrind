@@ -28,15 +28,31 @@ end)();
 	files { "extern/simpleini/ConvertUTF.c" }
 end)();
 
+(function()
+	project "Lua"
+	targetname "lua-ng"
+	targetdir "bin"
+	defines { "_CRT_SECURE_NO_WARNINGS" }
+	kind "StaticLib"
+	language "C"
+	includedirs { "extern/lua/src" }
+	files { "extern/lua/src/*.c" }
+	excludes { "extern/lua/src/lua.c", "extern/lua/src/luac.c" }
+end)();
+
 function ng_stuff()
 	links {
 		"glfw3", "Xrandr", "X11", "lua5.1", "GLXW",
-		"GL", "openal", "physfs", "ConvertUTF",
+		"openal", "physfs", "ConvertUTF", "Lua"
 	}
+	if os.is("windows") then
+		links { "opengl32" }
+	end
 	libdirs { "extern/glfw3/src" }
 	includedirs {
 		"src",
-		"/usr/include/lua5.1",
+		"extern/lua/src",
+		"extern/glm/glm",
 		"extern/glfw3/include",
 		"extern/glxw/include",
 		"extern/simpleini",
@@ -57,7 +73,7 @@ end
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb" }
 end)();
 
 -- main project
@@ -78,7 +94,7 @@ end)();
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb" }
 end)();
 
 -- tests
@@ -94,7 +110,7 @@ function test(name)
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-std=c++0x", "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb" }
 end
 
 test("ShaderTest")
