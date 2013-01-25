@@ -7,8 +7,12 @@
 #include <string>
 #include "utils/File.h"
 
+#ifndef _MSC_VER
 // Extra warnings, hm
 #define PRINTF(m,n) __attribute__((format(__printf__,m,n)))
+#else
+#define PRINTF(m, n)
+#endif
 
 enum LogLevel
 {

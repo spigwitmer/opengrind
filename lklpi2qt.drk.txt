@@ -1,0 +1,94 @@
+Add Lua 5.1.5 to extern, update premake file (and some windows fixes)
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#
+# Changes to be committed:
+#   (use "git reset HEAD^1 <file>..." to unstage)
+#
+#	modified:   .gitignore
+#	new file:   extern/lua/COPYRIGHT
+#	new file:   extern/lua/HISTORY
+#	new file:   extern/lua/INSTALL
+#	new file:   extern/lua/README
+#	new file:   extern/lua/etc/README
+#	new file:   extern/lua/etc/all.c
+#	new file:   extern/lua/etc/lua.hpp
+#	new file:   extern/lua/etc/lua.ico
+#	new file:   extern/lua/etc/lua.pc
+#	new file:   extern/lua/etc/luavs.bat
+#	new file:   extern/lua/etc/min.c
+#	new file:   extern/lua/etc/noparser.c
+#	new file:   extern/lua/etc/strict.lua
+#	new file:   extern/lua/src/lapi.c
+#	new file:   extern/lua/src/lapi.h
+#	new file:   extern/lua/src/lauxlib.c
+#	new file:   extern/lua/src/lauxlib.h
+#	new file:   extern/lua/src/lbaselib.c
+#	new file:   extern/lua/src/lcode.c
+#	new file:   extern/lua/src/lcode.h
+#	new file:   extern/lua/src/ldblib.c
+#	new file:   extern/lua/src/ldebug.c
+#	new file:   extern/lua/src/ldebug.h
+#	new file:   extern/lua/src/ldo.c
+#	new file:   extern/lua/src/ldo.h
+#	new file:   extern/lua/src/ldump.c
+#	new file:   extern/lua/src/lfunc.c
+#	new file:   extern/lua/src/lfunc.h
+#	new file:   extern/lua/src/lgc.c
+#	new file:   extern/lua/src/lgc.h
+#	new file:   extern/lua/src/linit.c
+#	new file:   extern/lua/src/liolib.c
+#	new file:   extern/lua/src/llex.c
+#	new file:   extern/lua/src/llex.h
+#	new file:   extern/lua/src/llimits.h
+#	new file:   extern/lua/src/lmathlib.c
+#	new file:   extern/lua/src/lmem.c
+#	new file:   extern/lua/src/lmem.h
+#	new file:   extern/lua/src/loadlib.c
+#	new file:   extern/lua/src/lobject.c
+#	new file:   extern/lua/src/lobject.h
+#	new file:   extern/lua/src/lopcodes.c
+#	new file:   extern/lua/src/lopcodes.h
+#	new file:   extern/lua/src/loslib.c
+#	new file:   extern/lua/src/lparser.c
+#	new file:   extern/lua/src/lparser.h
+#	new file:   extern/lua/src/lstate.c
+#	new file:   extern/lua/src/lstate.h
+#	new file:   extern/lua/src/lstring.c
+#	new file:   extern/lua/src/lstring.h
+#	new file:   extern/lua/src/lstrlib.c
+#	new file:   extern/lua/src/ltable.c
+#	new file:   extern/lua/src/ltable.h
+#	new file:   extern/lua/src/ltablib.c
+#	new file:   extern/lua/src/ltm.c
+#	new file:   extern/lua/src/ltm.h
+#	new file:   extern/lua/src/lua.c
+#	new file:   extern/lua/src/lua.h
+#	new file:   extern/lua/src/luac.c
+#	new file:   extern/lua/src/luaconf.h
+#	new file:   extern/lua/src/lualib.h
+#	new file:   extern/lua/src/lundump.c
+#	new file:   extern/lua/src/lundump.h
+#	new file:   extern/lua/src/lvm.c
+#	new file:   extern/lua/src/lvm.h
+#	new file:   extern/lua/src/lzio.c
+#	new file:   extern/lua/src/lzio.h
+#	new file:   extern/lua/src/print.c
+#	modified:   premake4.lua
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#   (commit or discard the untracked or modified content in submodules)
+#
+#	modified:   extern/glfw3 (untracked content)
+#	modified:   src/utils/Logger.h
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	extern/glm/
+
