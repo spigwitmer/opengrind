@@ -97,11 +97,11 @@ end)();
 end)();
 
 function ng_stuff()
-	link_gl()
 	links {
 		"glfw3", "GLXW", "Lua",
 		"PhysFS", "ConvertUTF"
 	}
+	link_gl()
 	if os.is("windows") then
 		libdirs { "extern/glfw3/build/src/Release" }
 		defines { "_CRT_SECURE_NO_WARNINGS" }
