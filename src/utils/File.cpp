@@ -48,7 +48,7 @@ void File::init()
 	if (success) goto _File_h_physfs_error;
 
 	// Make log folder
-	PHYSFS_mkdir("logs");
+	success = PHYSFS_mkdir("logs");
 
 	if (!success) return;
 
