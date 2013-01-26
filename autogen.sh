@@ -10,6 +10,6 @@ $PREMAKE gmake
 # set up our submodules
 git submodule init
 git submodule update
-(cd extern/glfw3 && cmake .)
+(cd extern/glfw3 && cmake . && make -j5)
 : ${PYTHON:=$(type -p python2)} ${PYTHON:=$(type -p python)} ${PYTHON:?python interpreter not found}
 (cd extern/glxw && "$PYTHON" glxw_gen.py)
