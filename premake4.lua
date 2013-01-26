@@ -1,6 +1,10 @@
 solution "OpenGrind"
 configurations { "Debug", "Release" }
+
+configuration { "debug" }
 defines { "DEBUG" }
+flags { "Symbols" }
+
 ;
 -- libs
 function link_gl()
