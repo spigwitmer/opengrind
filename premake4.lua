@@ -127,9 +127,6 @@ end
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-Wall", "-pedantic", "-ggdb", "-Wno-long-long", "-Wno-comment" }
-
-	configuration { "windows", "vs2008" }
-	linkoptions { "/ignore:2733" }
 end)();
 
 -- main project

@@ -9,12 +9,12 @@ void Window::close()
 
 bool Window::is_focused()
 {
-	return (bool)glfwGetWindowParam((GLFWwindow*)handle, GLFW_FOCUSED);
+	return glfwGetWindowParam((GLFWwindow*)handle, GLFW_FOCUSED) != 0;
 }
 
 bool Window::should_close()
 {
-	return (bool)glfwGetWindowParam((GLFWwindow*)handle, GLFW_SHOULD_CLOSE);
+	return glfwGetWindowParam((GLFWwindow*)handle, GLFW_SHOULD_CLOSE) != 0;
 }
 
 /**

@@ -9,7 +9,7 @@ typedef set<EventListener*>::iterator ListenerSetIterator;
 
 bool EventManager::Broadcast(const string &name, const IEvent &ev)
 {
-	const set<EventListener*> &data = m_Listeners[name];
+	set<EventListener*> &data = m_Listeners[name];
 
 	for (ListenerSetIterator it = data.begin(); it != data.end(); it++)
 	{
