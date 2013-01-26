@@ -42,10 +42,55 @@ end)();
 	excludes { "extern/lua/src/lua.c", "extern/lua/src/luac.c" }
 end)();
 
+(function()
+	project "ZLib"
+	targetname "z-ng"
+	kind "StaticLib"
+	language "C"
+	targetdir "bin"
+	includedirs { "extern/zlib" }
+	files { "extern/zlib/*.c" }
+end)();
+
+(function()
+	project "PhysFS"
+	targetname "physfs-ng"
+	kind "StaticLib"
+	language "C"
+	targetdir "bin"
+
+	includedirs { "extern/physfs" }
+	links("ZLib")
+
+	files {
+		"extern/physfs/*.c",
+		"extern/physfs/archivers/dir.c",
+		"extern/physfs/archivers/zip.c"
+	}
+
+	if not os.is("windows") then
+		files {
+			"extern/physfs/platform/unix.c",
+			"extern/physfs/platform/posix.c"
+		}
+	end
+
+	if os.is("macosx") then
+		files { "extern/physfs/platform/macosx.c" }
+		links { "IOKit.framework" }
+	elseif os.is("windows") then
+		files { "extern/physfs/platform/windows.c" }
+	end
+
+	defines {
+		"PHYSFS_NO_CDROM_SUPPORT"
+	}
+end)();
+
 function ng_stuff()
 	links {
 		"glfw3", "Xrandr", "X11", "GLXW", "Lua",
-		"openal", "physfs", "ConvertUTF"
+		"openal", "PhysFS", "ConvertUTF"
 	}
 	if os.is("windows") then
 		links { "opengl32" }
@@ -63,7 +108,8 @@ function ng_stuff()
 		"extern/glxw/include",
 		"extern/simpleini",
 		"extern/simpleopt",
-		"extern/iqm"
+		"extern/iqm",
+		"extern/physfs"
 	}
 end
 
@@ -80,6 +126,9 @@ end
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-Wall", "-pedantic", "-ggdb" }
+
+	configuration { "windows", "vs2008" }
+	linkoptions { "/ignore:2733" }
 end)();
 
 -- main project
