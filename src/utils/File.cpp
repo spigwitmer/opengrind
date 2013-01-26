@@ -175,11 +175,13 @@ string File::read_string(size_t start, size_t end)
 		end = length;
 
 	length = end - start;
-	char *buf = new char[length];
+	char *buf = new char[length+1];
 
 	seek(start);
 	read(buf, length);
 	seek(0);
+
+	buf[length] = '\0';
 
 	string ret = buf;
 	delete[] buf;
