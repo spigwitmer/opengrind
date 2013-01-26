@@ -2,7 +2,7 @@
 
 # TODO: pick some number of cores based on /proc/cpuinfo or so
 (cd extern/premake-4.3/build/gmake.unix && make -j5)
-PREMAKE=./bin/release/premake4
+PREMAKE=./extern/premake-4.3/bin/release/premake4
 
 # set up the build env now
 $PREMAKE gmake
