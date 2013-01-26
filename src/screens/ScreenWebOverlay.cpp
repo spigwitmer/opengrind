@@ -23,7 +23,6 @@ ScreenWebOverlay::ScreenWebOverlay(string name) :
 	string log_path = PHYSFS_getRealDir("/");
 
 	Awesomium::WebCoreConfig cfg;
-	//cfg.setCustomCSS("::-webkit-scrollbar { width: 0; height: 0; } * { color: white; }");
 	cfg.setEnablePlugins(false);
 	cfg.setUserDataPath(log_path);
 	cfg.setLogPath(log_path+"/logs");
@@ -118,7 +117,7 @@ bool ScreenWebOverlay::HandleEvent(const string &name, const IEvent &evt)
 	if (name == "Resize")
 	{
 		DisplayManager *dm = DisplayManager::GetSingleton();
-		viewport = dm->GetViewport();
+		viewport = dm->GetRenderer()->GetViewport();
 
 		web_view->resize((int)viewport.z, (int)viewport.w, false);
 	}
