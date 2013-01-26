@@ -22,8 +22,8 @@
 
 using namespace std;
 
-const char *Nepgear::FullName = "Nepgear";
-const char *Nepgear::UnixName = "nepgear";
+const char *Nepgear::FullName = "OpenGrind";
+const char *Nepgear::UnixName = "opengrind";
 const char *Nepgear::Arg0;
 
 class PrefsManager : public Singleton<PrefsManager>

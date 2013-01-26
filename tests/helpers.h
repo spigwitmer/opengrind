@@ -1,5 +1,5 @@
 #pragma once
 
-const char *Nepgear::FullName = "Nepgear Test Suite";
-const char *Nepgear::UnixName = "nepgear";
+const char *Nepgear::FullName = "OpenGrind Test Suite";
+const char *Nepgear::UnixName = "opengrind";
 const char *Nepgear::Arg0;
