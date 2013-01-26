@@ -7,6 +7,10 @@
 #include "utils/Logger.h"
 #include "utils/Timer.h"
 
+#ifndef _MSC_VER
+#include <unistd.h> // usleep
+#endif
+
 using namespace std;
 
 namespace
