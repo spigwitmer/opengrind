@@ -13,6 +13,5 @@ void RenderSystem_GL30::UpdateViewport()
 {
 	m_viewport = DisplayManager::GetSingleton()->GetViewport();
 	glm::vec4 view = m_viewport; // we may need to change this in case of 3D
-	glViewport(view.x, view.y, view.z, view.w);
+	glViewport((GLsizei)view.x, (GLsizei)view.y, (GLsizei)view.z, (GLsizei)view.w);
 }
-

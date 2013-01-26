@@ -27,7 +27,10 @@ int main(int argc, char **argv)
 	Nepgear ng(argc, argv, "shader-test.log");
 
 	GLWindow wnd;
-	if (!wnd.open(WindowParams { 960, 540 }, "Shader Test"))
+	WindowParams params;
+	params.width = 960;
+	params.height = 540;
+	if (!wnd.open(params, "Shader Test"))
 		return 1;
 
 	ShaderProgram p("Mandelbrot.Vertex.GL30", "Mandelbrot.Fragment.GL30");
@@ -97,7 +100,7 @@ int main(int argc, char **argv)
 		size_t prev = 0;
 		size_t next = 0;
 
-		float factor = size / stops.size();
+		float factor = float(size / stops.size());
 		for (size_t i = 0; i < size; ++i)
 		{
 			float progress = float(i)/size;

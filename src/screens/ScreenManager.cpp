@@ -34,7 +34,9 @@ ScreenManager::~ScreenManager()
 
 void ScreenManager::Update(bool focus)
 {
+#ifndef _MSC_VER
 	if (!focus) usleep(1000*75);
+#endif
 
 	double time = glfwGetTime();
 	double delta = time - m_LastUpdate;
