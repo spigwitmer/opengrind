@@ -168,19 +168,18 @@ bool File::read(char *buf, size_t bytes, size_t *got)
 string File::read_string(size_t start, size_t end)
 {
 	size_t length = this->length();
-	char* buf = new char[length];
 
 	if (end > length)
 		LOG->Warn("Attempted to seek past end of file!");
 	if (end <= start || end == 0)
 		end = length;
 
-	seek(start);
-	read(buf, end - start);
-	seek(0);
+	length = end - start;
+	char *buf = new char[length];
 
-	// make sure we've got a null terminator
-	buf[length] = '\0';
+	seek(start);
+	read(buf, length);
+	seek(0);
 
 	string ret = buf;
 	delete[] buf;

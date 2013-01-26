@@ -212,6 +212,7 @@ bool ShaderStage::Compile()
 		string error;
 
 		glGetShaderiv(m_object, GL_INFO_LOG_LENGTH, &length);
+		error.resize(length);
 		glGetShaderInfoLog(m_object, length, NULL, &error[0]);
 
 		CheckError();
