@@ -30,7 +30,7 @@ ScreenWebOverlay::ScreenWebOverlay(string name) :
 
 	web_core = new Awesomium::WebCore(cfg);
 	web_view = web_core->createWebView(
-		viewport.z, viewport.w
+		(int)viewport.z, (int)viewport.w
 	);
 	web_view->setTransparent(true);
 
@@ -120,7 +120,7 @@ bool ScreenWebOverlay::HandleEvent(const string &name, const IEvent &evt)
 		DisplayManager *dm = DisplayManager::GetSingleton();
 		viewport = dm->GetViewport();
 
-		web_view->resize(viewport.z, viewport.w, false);
+		web_view->resize((int)viewport.z, (int)viewport.w, false);
 	}
 	return true;
 }

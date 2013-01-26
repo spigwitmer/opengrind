@@ -3,6 +3,15 @@ configurations { "Debug", "Release" }
 defines { "DEBUG" }
 ;
 -- libs
+function link_gl()
+	if os.is("windows") then
+		links { "opengl32" }
+	elseif os.is("macosx") then
+		links { "OpenGL.framework" }
+	else
+		links { "GL" }
+	end
+end
 
 (function(self)
 	project "GLXW"
@@ -12,7 +21,6 @@ defines { "DEBUG" }
 	language "C"
 	includedirs { "extern/glxw/include" }
 	files { "extern/glxw/src/glxw.c" }
-	links { "GL" }
 end)();
 
 (function()
@@ -89,18 +97,20 @@ end)();
 end)();
 
 function ng_stuff()
+	link_gl()
 	links {
-		"glfw3", "Xrandr", "X11", "GLXW", "Lua",
-		"openal", "PhysFS", "ConvertUTF"
+		"glfw3", "GLXW", "Lua",
+		"PhysFS", "ConvertUTF"
 	}
 	if os.is("windows") then
-		links { "opengl32" }
-	elseif os.is("macosx") then
-		links { "OpenGL.framework" }
+		libdirs { "extern/glfw3/build/src/Release" }
+		defines { "_CRT_SECURE_NO_WARNINGS" }
 	else
-		links { "GL" }
+		libdirs { "extern/glfw3/src" }
 	end
-	libdirs { "extern/glfw3/src" }
+	if not os.is("macosx") and not os.is("windows") then
+		links { "Xrandr", "X11" }
+	end
 	includedirs {
 		"src",
 		"extern/lua/src",
@@ -140,9 +150,14 @@ end)();
 	links { "Nepgear" }
 
 	-- awesomium stuff
-	includedirs { "/home/colby/src/awesomium_v1.6.5_sdk_linux64/include" }
 	libdirs { "./bin" }
-	links { "jpeg-ng", "awesomium-1.6.5" }
+	if os.is("windows") then
+		links { "Awesomium" }
+	else
+		includedirs { "/home/colby/src/awesomium_v1.6.5_sdk_linux64/include" }
+		links { "awesomium-1.6.5" }
+		links { "jpeg-ng" }
+	end
 
 	ng_stuff()
 
