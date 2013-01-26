@@ -58,7 +58,7 @@ function ng_stuff()
 	includedirs {
 		"src",
 		"extern/lua/src",
-		"extern/glm/glm",
+		"extern/glm",
 		"extern/glfw3/include",
 		"extern/glxw/include",
 		"extern/simpleini",
