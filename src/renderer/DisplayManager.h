@@ -19,6 +19,8 @@ public:
 	void SetRenderer(RenderSystem *renderer) { m_renderer = renderer; }
 	RenderSystem* GetRenderer() const { return m_renderer; }
 
+	/* This is the viewport for the window itself, unscaled. Get viewport
+	 * from the renderer for the properly scaled one. */
 	void SetViewport(glm::vec4 viewport) { m_viewport = viewport; }
 	const glm::vec4 GetViewport() const { return m_viewport; }
 

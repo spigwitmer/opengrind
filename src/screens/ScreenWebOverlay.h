@@ -21,7 +21,7 @@ public:
 	void UpdateInternal(double delta);
 	bool HandleEvent(const std::string &name, const IEvent &evt);
 	
-	void Draw();
+	void Draw(DrawBuffer db);
 	
 protected:
 	Awesomium::WebCore* web_core;

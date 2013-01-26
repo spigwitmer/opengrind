@@ -18,7 +18,7 @@ ScreenWebOverlay::ScreenWebOverlay(string name) :
 	Screen(name), web_core(NULL), web_view(NULL), m_ready(false)
 {
 	DisplayManager *dm = DisplayManager::GetSingleton();
-	viewport = dm->GetViewport();
+	viewport = dm->GetRenderer()->GetViewport();
 
 	string log_path = PHYSFS_getRealDir("/");
 
@@ -148,7 +148,7 @@ void ScreenWebOverlay::UpdateInternal(double delta)
 	}
 }
 
-void ScreenWebOverlay::Draw()
+void ScreenWebOverlay::Draw(DrawBuffer db)
 {
 	glDisable(GL_DEPTH_TEST);
 

@@ -21,5 +21,4 @@ public:
 
 protected:
 	std::string m_name;
-	glm::vec4 m_viewport;
 };

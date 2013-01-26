@@ -81,7 +81,7 @@ void ScreenTestDrawing::UpdateInternal(double delta)
 // no sense making this a bunch of times.
 static glm::mat4 matrix(1.0);
 
-void ScreenTestDrawing::Draw()
+void ScreenTestDrawing::Draw(DrawBuffer db)
 {
 	DisplayManager *dm = DisplayManager::GetSingleton();
 	dm->GetRenderer()->SetUniforms(shader);

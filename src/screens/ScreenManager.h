@@ -20,7 +20,7 @@ public:
 	virtual ~ScreenManager();
 
 	void Update(bool focus);
-	void Draw();
+	void Draw(StereoscopicMode sm);
 
 	void PushScreen(const std::string &sName);
 	void PopScreen();

@@ -108,7 +108,7 @@ void Screen::Update(double delta)
 	UpdateInternal(delta);
 }
 
-void Screen::Draw()
+void Screen::Draw(DrawBuffer db)
 {
 }
 

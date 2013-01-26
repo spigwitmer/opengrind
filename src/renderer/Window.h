@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "Stereoscopic.h"
 
 struct WindowParams
 {
@@ -8,7 +9,8 @@ struct WindowParams
 		width(0),
 		height(0),
 		fullscreen(0),
-		fullscreen_monitor(0)
+		fullscreen_monitor(0),
+		stereoscopic_mode(StereoscopicMode_None)
 	{}
 
 	int width;
@@ -16,6 +18,7 @@ struct WindowParams
 
 	int fullscreen;
 	int fullscreen_monitor;
+	StereoscopicMode stereoscopic_mode;
 };
 
 // designed as a thin wrapper around glfw.

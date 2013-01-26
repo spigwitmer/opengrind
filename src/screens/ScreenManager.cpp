@@ -74,13 +74,30 @@ void ScreenManager::Update(bool focus)
 		(*it)->Update(delta);
 }
 
-void ScreenManager::Draw()
+void ScreenManager::Draw(StereoscopicMode sm)
 {
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+	glm::vec4 vp = m_renderer->GetViewport();
+
 	vector<Screen*>::iterator it = m_vScreenStack.begin();
 	for (; it != m_vScreenStack.end(); it++)
-		(*it)->Draw();
+	{
+		if (sm == StereoscopicMode_None)
+		{
+			(*it)->Draw(DrawBuffer_Center);
+			continue;
+		}
+		if (sm == StereoscopicMode_SBS)
+		{
+			glViewport(0, 0, (int)vp.z, (int)vp.w);
+			(*it)->Draw(DrawBuffer_Left);
+
+			glViewport((int)vp.z, 0, (int)vp.z, (int)vp.w);
+			(*it)->Draw(DrawBuffer_Right);
+			continue;
+		}
+	}
 }
 
 void ScreenManager::PushScreen(const std::string &sName)

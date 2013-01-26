@@ -17,7 +17,7 @@ public:
 	void Reset();
 
 	void Update(double delta);
-	virtual void Draw();
+	virtual void Draw(DrawBuffer db);
 
 	// TODO
 	void Push(ActorBase* obj);

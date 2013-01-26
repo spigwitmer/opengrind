@@ -58,6 +58,7 @@ static int run()
 	p.height = prefs->GetInteger("Display", "Height");
 	p.fullscreen = prefs->GetInteger("Display", "Fullscreen");
 	p.fullscreen_monitor = prefs->GetInteger("Display", "FullscreenMonitor");
+	p.stereoscopic_mode = StereoscopicMode_SBS;
 
 	Window *window = new GLWindow();
 
@@ -106,7 +107,7 @@ static int run()
 			break;
 
 		screen.Update(window->is_focused());
-		screen.Draw();
+		screen.Draw(p.stereoscopic_mode);
 
 		glfwSwapBuffers((GLFWwindow*)window->handle);
 
