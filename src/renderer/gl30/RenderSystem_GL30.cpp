@@ -1,4 +1,3 @@
-#define GLM_SWIZZLE
 #include "RenderSystem_GL30.h"
 #include <GLXW/glxw.h>
 #include "renderer/DisplayManager.h"
@@ -6,7 +5,7 @@
 
 void RenderSystem_GL30::SetUniforms(ShaderProgram *shader)
 {
-	shader->SetVector2("Viewport", m_viewport.zw);
+	shader->SetVector2("Viewport", glm::vec2(m_viewport.z, m_viewport.w));
 }
 
 void RenderSystem_GL30::UpdateViewport()

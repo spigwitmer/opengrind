@@ -4,6 +4,13 @@
 
 struct WindowParams
 {
+	WindowParams() :
+		width(0),
+		height(0),
+		fullscreen(0),
+		fullscreen_monitor(0)
+	{}
+
 	int width;
 	int height;
 

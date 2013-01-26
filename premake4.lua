@@ -125,7 +125,7 @@ end
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb", "-Wno-long-long", "-Wno-comment" }
 
 	configuration { "windows", "vs2008" }
 	linkoptions { "/ignore:2733" }
@@ -149,7 +149,8 @@ end)();
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb", "-Wno-long-long", "-Wno-comment" }
+
 end)();
 
 -- tests
@@ -165,7 +166,8 @@ function test(name)
 	ng_stuff()
 
 	configuration { "linux", "gmake" }
-	buildoptions { "-Wall", "-pedantic", "-ggdb" }
+	buildoptions { "-Wall", "-pedantic", "-ggdb", "-Wno-long-long", "-Wno-comment" }
+
 end
 
 test("ShaderTest")

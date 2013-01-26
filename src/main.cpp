@@ -53,12 +53,12 @@ static int run()
 	PrefsManager	*prefs   = PrefsManager::GetSingleton();
 
 	RenderSystem *renderer = new RenderSystem_GL30();
-	WindowParams p {
-		prefs->GetInteger("Display", "Width"),
-		prefs->GetInteger("Display", "Height"),
-		prefs->GetInteger("Display", "Fullscreen"),
-		prefs->GetInteger("Display", "FullscreenMonitor"),
-	};
+	WindowParams p;
+	p.width = prefs->GetInteger("Display", "Width");
+	p.height = prefs->GetInteger("Display", "Height");
+	p.fullscreen = prefs->GetInteger("Display", "Fullscreen");
+	p.fullscreen_monitor = prefs->GetInteger("Display", "FullscreenMonitor");
+
 	Window *window = new GLWindow();
 
 	display->SetRenderer(renderer);
