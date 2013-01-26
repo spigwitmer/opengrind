@@ -14,6 +14,7 @@ void File::init()
 
 	int success = 0;
 	string tmp, save_folder = string(".") + Nepgear::UnixName;
+	const char* separator = PHYSFS_getDirSeparator();
 
 	// Set the base dir for the VFS
 	success = PHYSFS_init(Nepgear::Arg0);
@@ -26,7 +27,6 @@ void File::init()
 	 * Create logs folder.
 	 */
 	PHYSFS_permitSymbolicLinks(1);
-	const char* separator = PHYSFS_getDirSeparator();
 	tmp = PHYSFS_getBaseDir();
 	tmp = tmp.substr(0, tmp.find_last_of(separator));
 	tmp = tmp.substr(0, tmp.find_last_of(separator));
