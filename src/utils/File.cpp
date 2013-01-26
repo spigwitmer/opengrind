@@ -26,10 +26,12 @@ void File::init()
 	 * Create logs folder.
 	 */
 	PHYSFS_permitSymbolicLinks(1);
+	const char* separator = PHYSFS_getDirSeparator();
 	tmp = PHYSFS_getBaseDir();
-	tmp = tmp.substr(0, tmp.find_last_of("/"));
-	tmp = tmp.substr(0, tmp.find_last_of("/"));
-	tmp += "/game";
+	tmp = tmp.substr(0, tmp.find_last_of(separator));
+	tmp = tmp.substr(0, tmp.find_last_of(separator));
+	tmp += separator;
+	tmp += "game";
 	PHYSFS_mount(tmp.c_str(), NULL, 1);
 
 	tmp = PHYSFS_getUserDir();
