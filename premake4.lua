@@ -80,6 +80,7 @@ end)();
 		links { "IOKit.framework" }
 	elseif os.is("windows") then
 		files { "extern/physfs/platform/windows.c" }
+		defines { "_CRT_SECURE_NO_WARNINGS" }
 	end
 
 	defines {
