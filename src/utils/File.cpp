@@ -45,11 +45,6 @@ void File::init()
 	if (!success) goto _File_h_physfs_error;
 
 	PHYSFS_mount(tmp.c_str(), NULL, 0);
-	if (success) goto _File_h_physfs_error;
-
-	// Make log folder
-	success = PHYSFS_mkdir("logs");
-
 	if (!success) return;
 
 	_File_h_physfs_error:

@@ -38,7 +38,10 @@ using namespace std;
 
 Logger::Logger(std::string path)
 {
-	m_File = new File();
+	string dir = path.substr(0, path.find_last_of("/"));
+
+	m_File = new File(dir);
+	m_File->mkdir();
 
 	// Logger is borked if this happens
 	if (!m_File->open(path, FileAccessMode_Write))
