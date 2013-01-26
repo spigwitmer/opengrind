@@ -84,7 +84,7 @@ File::~File()
 
 bool File::mkdir()
 {
-	return (bool)PHYSFS_mkdir(filename.c_str());
+	return PHYSFS_mkdir(filename.c_str()) != 0;
 }
 
 bool File::open(string path, FileAccessMode fm)
@@ -115,7 +115,7 @@ bool File::open(string path, FileAccessMode fm)
 	if (err.empty())
 		return true;
 
-	return (bool)handle;
+	return handle != 0;
 }
 
 bool File::close()
@@ -123,28 +123,28 @@ bool File::close()
 	if (!is_open())
 		return true;
 	flush();
-	return (bool)PHYSFS_close((PHYSFS_File*)handle);
+	return PHYSFS_close((PHYSFS_File*)handle) != 0;
 }
 
 size_t File::length()
 {
 	if (!is_open())
 		return 0;
-	return PHYSFS_fileLength((PHYSFS_File*)handle);
+	return (size_t)PHYSFS_fileLength((PHYSFS_File*)handle);
 }
 
 bool File::flush()
 {
 	if (!is_open())
 		return 0;
-	return (bool)PHYSFS_flush((PHYSFS_File*)handle);
+	return PHYSFS_flush((PHYSFS_File*)handle) != 0;
 }
 
 bool File::seek(size_t pos)
 {
 	if (!is_open())
 		return 0;
-	return (bool)PHYSFS_seek((PHYSFS_File*)handle, pos);
+	return PHYSFS_seek((PHYSFS_File*)handle, pos) != 0;
 }
 
 bool File::read(char *buf, size_t bytes, size_t *got)
@@ -154,8 +154,8 @@ bool File::read(char *buf, size_t bytes, size_t *got)
 		assert(0);
 		return false;
 	}
-	int fetched;
-	fetched = PHYSFS_read((PHYSFS_File*)handle, buf, 1, bytes);
+	size_t fetched;
+	fetched = (size_t)PHYSFS_read((PHYSFS_File*)handle, buf, 1, bytes);
 
 	if (got) *got = fetched;
 
@@ -193,12 +193,12 @@ string File::read_string(size_t start, size_t end)
 
 bool File::write(void* data, size_t bytes)
 {
-	return (bool)PHYSFS_write((PHYSFS_File*)handle, data, bytes, 1);
+	return PHYSFS_write((PHYSFS_File*)handle, data, bytes, 1) != 0;
 }
 
 bool File::is_dir()
 {
-	return (bool)PHYSFS_isDirectory(filename.c_str());
+	return PHYSFS_isDirectory(filename.c_str()) != 0;
 }
 
 string File::get_real_path()
