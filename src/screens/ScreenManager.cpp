@@ -6,6 +6,7 @@
 #include "screens/Screen.h"
 #include "utils/Logger.h"
 #include "utils/Timer.h"
+#include <unistd.h>
 
 #ifndef _MSC_VER
 #include <unistd.h> // usleep

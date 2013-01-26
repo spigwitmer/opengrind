@@ -150,10 +150,15 @@ end)();
 	links { "Nepgear" }
 
 	-- awesomium stuff
-	libdirs { "./bin" }
 	if os.is("windows") then
 		links { "Awesomium" }
+		libdirs { "./bin" }
 	else
+		if os.is64bit() then
+			libdirs { "./bin", "./lib/linux/x86_64" }
+		else
+			libdirs { "./bin", "./lib/linux/x86" }
+		end
 		includedirs { "/home/colby/src/awesomium_v1.6.5_sdk_linux64/include" }
 		links { "awesomium-1.6.5" }
 		links { "jpeg-ng" }
