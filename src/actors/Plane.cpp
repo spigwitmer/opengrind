@@ -2,7 +2,6 @@
 #include <vector>
 #include "utils/Logger.h"
 #include "renderer/DisplayManager.h"
-#include <stdint.h>
 
 #include "Plane.h"
 
@@ -14,7 +13,7 @@ Plane::Plane() :
 {
 	RenderSystem* renderer = DisplayManager::GetSingleton()->GetRenderer();
 
-	uint8_t indices[] = { 1, 2, 3, 4 };
+	GLubyte indices[] = { 1, 2, 3, 4 };
 	GLData verts[4];
 
 	verts[0].pos = vec3(-0.5, -0.5, 0);
