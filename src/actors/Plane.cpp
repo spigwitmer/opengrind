@@ -2,6 +2,7 @@
 #include <vector>
 #include "utils/Logger.h"
 #include "renderer/DisplayManager.h"
+#include <stdint.h>
 
 #include "Plane.h"
 
