@@ -154,10 +154,7 @@ end)();
 	links { "Nepgear" }
 
 	-- awesomium stuff
-	if os.is("windows") then
-		links { "Awesomium" }
-		libdirs { "./bin" }
-	else
+	if not os.is("windows") then
 		if os.is64bit() then
 			libdirs { "./bin", "./lib/linux/x86_64" }
 		else
@@ -169,6 +166,14 @@ end)();
 	end
 
 	ng_stuff()
+
+	if os.is("windows") then
+		libdirs { "./bin" }
+		configuration { "Release" }
+		links { "Awesomium" }
+		configuration { "Debug" }
+		links { "Awesomium_d" }
+	end
 
 	configuration { "linux", "gmake" }
 	buildoptions { "-Wall", "-pedantic", "-ggdb", "-Wno-long-long", "-Wno-comment" }
