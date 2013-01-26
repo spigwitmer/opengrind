@@ -37,7 +37,7 @@ public:
 		else if (key == "Height")
 			return 720;
 		else if (key == "Fullscreen")
-			return 1;
+			return 0;
 		return 0;
 	}
 };
