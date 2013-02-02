@@ -1,3 +1,5 @@
+NOTE: UPDATE THE VFS TEST WITH THE CORRECT LENGTH IF YOU EDIT THIS FILE
+
 This is a test of the emergency broadcast system.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fermentum imperdiet pretium. Pellentesque viverra leo sit amet odio aliquet ut dignissim mi consequat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam in metus ut nibh fringilla fringilla non id risus. Etiam felis purus, venenatis ut consectetur eu, rhoncus sed velit. Phasellus pretium sapien ultrices leo semper auctor. Nulla dictum faucibus arcu, sed hendrerit ante bibendum at. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris suscipit pellentesque blandit.

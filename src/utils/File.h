@@ -23,8 +23,9 @@ public:
 	bool close(); // this CAN fail if writes were buffered
 
 	bool seek(size_t pos);
-	bool read(char *buf, size_t bytes, size_t *written = NULL);
+	bool read(char *buf, size_t bytes);
 	std::string read_string(size_t start = 0, size_t end = 0);
+	size_t get_last_read() const { return last_read; }
 
 	bool write(void *data, size_t bytes);
 	bool flush();
@@ -41,6 +42,7 @@ public:
 
 protected:
 	const char *last_error;
+	size_t last_read;
 	std::string filename;
 	void *handle; // PhysFS file handle
 	FileAccessMode mode;

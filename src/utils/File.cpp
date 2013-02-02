@@ -144,17 +144,14 @@ bool File::seek(size_t pos)
 	return PHYSFS_seek((PHYSFS_File*)handle, pos) != 0;
 }
 
-bool File::read(char *buf, size_t bytes, size_t *got)
+bool File::read(char *buf, size_t bytes)
 {
 	if (!is_open())
 	{
 		assert(0);
 		return false;
 	}
-	size_t fetched;
-	fetched = (size_t)PHYSFS_read((PHYSFS_File*)handle, buf, 1, bytes);
-
-	if (got) *got = fetched;
+	last_read = (size_t)PHYSFS_read((PHYSFS_File*)handle, buf, 1, bytes);
 
 	string err = get_last_error();
 	if (err.empty())

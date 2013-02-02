@@ -2,6 +2,9 @@
 #include "utils/Logger.h"
 #include "helpers.h"
 
+// *known* size of tests/foo.txt.
+const size_t expected_length = 3369;
+
 int main(int argc, char **argv)
 {
 	Nepgear ng(argc, argv, "vfs-test.log");
@@ -25,7 +28,17 @@ int main(int argc, char **argv)
 	f.close();
 
 	if (f.get_last_error().empty())
-		LOG->Trace("File closed. All seems to be well");
+	{
+		if (f.get_last_read() == expected_length)
+			LOG->Trace("File closed. All seems to be well");
+		else
+		{
+			LOG->Error("Bad file length! got %ld, expected %ld", f.get_last_read(), expected_length);
+			return 1;
+		}
+	}
+	else
+		LOG->Error(f.get_last_error());
 
 	return 0;
 }
