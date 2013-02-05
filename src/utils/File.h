@@ -23,7 +23,9 @@ public:
 	bool close(); // this CAN fail if writes were buffered
 
 	bool seek(size_t pos);
-	bool read(char *buf, size_t bytes);
+	size_t tell();
+
+	bool read(char *buf, size_t obj_count, size_t obj_size = 1);
 	std::string read_string(size_t start = 0, size_t end = 0);
 	size_t get_last_read() const { return last_read; }
 

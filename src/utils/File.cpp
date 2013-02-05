@@ -137,6 +137,11 @@ bool File::flush()
 	return PHYSFS_flush((PHYSFS_File*)handle) != 0;
 }
 
+size_t File::tell()
+{
+	return (size_t)PHYSFS_tell((PHYSFS_File*)handle);
+}
+
 bool File::seek(size_t pos)
 {
 	if (!is_open())
@@ -144,14 +149,14 @@ bool File::seek(size_t pos)
 	return PHYSFS_seek((PHYSFS_File*)handle, pos) != 0;
 }
 
-bool File::read(char *buf, size_t bytes)
+bool File::read(char *buf, size_t obj_count, size_t obj_size)
 {
 	if (!is_open())
 	{
 		assert(0);
 		return false;
 	}
-	last_read = (size_t)PHYSFS_read((PHYSFS_File*)handle, buf, 1, bytes);
+	last_read = (size_t)PHYSFS_read((PHYSFS_File*)handle, buf, obj_size, obj_count);
 
 	string err = get_last_error();
 	if (err.empty())
