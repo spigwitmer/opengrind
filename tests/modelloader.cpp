@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -200,9 +202,9 @@ int main(int argc, char **argv)
 	struct vertex
 	{
 		float position[3];
+		float texcoord[2];
 		float normal[3];
 		float tangent[4];
-		float texcoord[2];
 		uchar blendindex[4];
 		uchar blendweight[4];
 	};
@@ -213,12 +215,14 @@ int main(int argc, char **argv)
 	{
 		vertex &v = verts[i];
 		if(inposition) memcpy(v.position, &inposition[i*3], sizeof(v.position));
+		if(intexcoord) memcpy(v.texcoord, &intexcoord[i*2], sizeof(v.texcoord));
 		if(innormal) memcpy(v.normal, &innormal[i*3], sizeof(v.normal));
 		if(intangent) memcpy(v.tangent, &intangent[i*4], sizeof(v.tangent));
-		if(intexcoord) memcpy(v.texcoord, &intexcoord[i*2], sizeof(v.texcoord));
 		if(inblendindex) memcpy(v.blendindex, &inblendindex[i*4], sizeof(v.blendindex));
 		if(inblendweight) memcpy(v.blendweight, &inblendweight[i*4], sizeof(v.blendweight));
 	}
+
+	delete[] file;
 
 	GLWindow wnd;
 	WindowParams params;
@@ -237,7 +241,7 @@ int main(int argc, char **argv)
 	glBufferData(GL_ARRAY_BUFFER, hdr.num_triangles*sizeof(vertex), verts, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr.num_triangles*sizeof(iqm_triangle), &file[hdr.ofs_triangles], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr.num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
 
 	for (unsigned i = 0; i < hdr.num_vertexarrays; ++i)
 	{
@@ -273,7 +277,8 @@ int main(int argc, char **argv)
 		p.BindAttrib(3, "vTangent");
 		p.Link();
 		p.Bind();
-		p.SetMatrix4("ModelViewProjection", glm::mat4(1.0));
+		glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -50.0));
+		p.SetMatrix4("ModelViewProjection", glm::perspective(35.0f, 960.f/540.f, 0.1f, 100.0f) * position);
 		p.SetVector2("Viewport", glm::vec2(960, 540));
 	}
 
@@ -293,7 +298,7 @@ int main(int argc, char **argv)
 			int end   = m.first_triangle + m.num_triangles;
 			int count = end - start;
 			//LOG->Debug("%d %d %d", start, end, count);
-			glDrawRangeElements(GL_TRIANGLES, start * 3, end * 3, count * 3, GL_UNSIGNED_INT, NULL);
+			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
 		}
 
 		CheckError();
@@ -313,7 +318,6 @@ int main(int argc, char **argv)
 	delete[] tris;
 	delete[] meshes;
 	delete[] vertex_arrays;
-	delete[] file;
 
 	return 0;
 }
