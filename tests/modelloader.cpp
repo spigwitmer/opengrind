@@ -290,7 +290,6 @@ int main(int argc, char **argv)
 			int start = m.first_triangle;
 			int end   = m.first_triangle + m.num_triangles;
 			int count = end - start;
-			LOG->Debug("%d %d %d", start, end, count);
 			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
 		}
 
