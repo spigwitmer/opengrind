@@ -8,18 +8,20 @@ out vec3 normal;
 
 void main()
 {
-	normal = normalize(vPosition.xyz); // xxx
+	normal = vNormal;
 	gl_Position = ModelViewProjection * vPosition;
 }
 
 -- Fragment.GL30
 in vec3 normal;
 
-const vec3 light = normalize(vec3(-0.5, 1.0, -1.0));
+uniform mat4 View;
+
+const vec3 light = normalize(vec3(0.0, -1.0, -0.5));
 
 out vec4 frag_color;
 
 void main()
 {
-	frag_color = vec4(vec3(dot(normal, light)), 1.0);
+	frag_color = vec4(vec3(dot(normal, mat3(View) * light)), 1.0);
 }

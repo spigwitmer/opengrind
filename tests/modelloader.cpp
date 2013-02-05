@@ -143,6 +143,7 @@ int main(int argc, char **argv)
 	model.read(file, 1, hdr.filesize);
 	model.close();
 
+	/*
 	std::vector<std::string> strings;
 
 	for (size_t pos = hdr.ofs_text; strings.size() < hdr.num_text; pos++)
@@ -150,10 +151,11 @@ int main(int argc, char **argv)
 		size_t prev = pos;
 		while (file[pos] != '\0')
 			pos++;
-		//LOG->Debug("%s", file+prev);
+		LOG->Debug("%s", file+prev);
 		strings.push_back(std::string(file+prev));
 		pos += pos % 4; // align to 4 bytes, increment.
 	}
+	*/
 
 	iqm_vertexarray* vertex_arrays = new iqm_vertexarray[hdr.num_vertexarrays];
 	memcpy(vertex_arrays, &file[hdr.ofs_vertexarrays], hdr.num_vertexarrays*sizeof(iqm_vertexarray));
@@ -237,6 +239,8 @@ int main(int argc, char **argv)
 
 	glBindVertexArray(vao);
 
+	LOG->Debug("%ldK", hdr.num_triangles*sizeof(vertex)/1024);
+
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, hdr.num_triangles*sizeof(vertex), verts, GL_STATIC_DRAW);
 
@@ -244,30 +248,14 @@ int main(int argc, char **argv)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr.num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
 
 	for (unsigned i = 0; i < hdr.num_vertexarrays; ++i)
-	{
-		iqm_vertexarray va = vertex_arrays[i];
 		glEnableVertexAttribArray(i);
 
-		int offset = 0;
-		for (unsigned j = 0; j < i; ++j)
-		{
-			// we only use UBYTE and FLOAT
-			int bytes = vertex_arrays[j].type == IQM_UBYTE ? 1 : 4;
-			offset += vertex_arrays[j].size * bytes;
-		}
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertex), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(vertex), (void*)(2*sizeof(float)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(vertex), (void*)(5*sizeof(float)));
+	glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(vertex), (void*)(9*sizeof(float)));
 
-		GLenum fmt;
-		switch (va.format)
-		{
-			case IQM_FLOAT: fmt = GL_FLOAT; break;
-			case IQM_UBYTE: fmt = GL_UNSIGNED_BYTE; break;
-			default: LOG->Error("invalid va format"); break;
-		}
-
-		glVertexAttribPointer(i, va.size, fmt, false, sizeof(vertex), (void*)offset);
-
-		CheckError();
-	}
+	CheckError();
 
 	ShaderProgram p("Skydome.Vertex.GL30", "Skydome.Fragment.GL30");
 	{
@@ -277,14 +265,19 @@ int main(int argc, char **argv)
 		p.BindAttrib(3, "vTangent");
 		p.Link();
 		p.Bind();
-		glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -50.0));
-		p.SetMatrix4("ModelViewProjection", glm::perspective(35.0f, 960.f/540.f, 0.1f, 100.0f) * position);
+		glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+		glm::mat4 view = glm::lookAt(glm::vec3(0, -35, 2), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
+		glm::mat4 projection = glm::perspective(55.0f, 960.f/540.f, 0.1f, 100.0f);
+		p.SetMatrix4("View", view);
+		p.SetMatrix4("ModelViewProjection", projection * view * position);
 		p.SetVector2("Viewport", glm::vec2(960, 540));
 	}
 
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
+
+	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
@@ -297,7 +290,7 @@ int main(int argc, char **argv)
 			int start = m.first_triangle;
 			int end   = m.first_triangle + m.num_triangles;
 			int count = end - start;
-			//LOG->Debug("%d %d %d", start, end, count);
+			LOG->Debug("%d %d %d", start, end, count);
 			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
 		}
 
