@@ -10,6 +10,7 @@ struct WindowParams
 		height(0),
 		fullscreen(0),
 		fullscreen_monitor(0),
+		samples(0),
 		stereoscopic_mode(StereoscopicMode_None)
 	{}
 
@@ -18,6 +19,7 @@ struct WindowParams
 
 	int fullscreen;
 	int fullscreen_monitor;
+	int samples;
 	StereoscopicMode stereoscopic_mode;
 };
 

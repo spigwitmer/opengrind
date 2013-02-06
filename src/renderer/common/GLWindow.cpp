@@ -8,7 +8,7 @@ bool GLWindow::open(WindowParams p, std::string title)
 {
 	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 	glfwWindowHint(GLFW_STENCIL_BITS, 8);
-	glfwWindowHint(GLFW_SAMPLES, 0);
+	glfwWindowHint(GLFW_SAMPLES, p.samples);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 
 	int count;
