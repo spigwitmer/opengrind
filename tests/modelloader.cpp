@@ -83,8 +83,8 @@ int main(int argc, char **argv)
 {
 	Nepgear ng(argc, argv, "model-loader.log");
 
-	File model;
-	model.open("models/skydome.iqm", FileAccessMode_Read);
+	File model_file;
+	model_file.open("models/suzanne.iqm", FileAccessMode_Read);
 
 	struct iqm_header
 	{
@@ -105,17 +105,17 @@ int main(int argc, char **argv)
 	} hdr;
 
 	/* make sure the iqm file is one we can actually read */
-	model.seek(0);
-	model.read(hdr.magic, 16, 1);
-	model.seek(0);
+	model_file.seek(0);
+	model_file.read(hdr.magic, 16, 1);
+	model_file.seek(0);
 
-	model.read((char*)&hdr, 1, sizeof(hdr));
-	model.seek(0);
+	model_file.read((char*)&hdr, 1, sizeof(hdr));
+	model_file.seek(0);
 
 	if (strncmp(hdr.magic, IQM_MAGIC, 16))
 	{
 		LOG->Error("Bad magic: %s", hdr.magic);
-		model.close();
+		model_file.close();
 		return 1;
 	}
 
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 			"This file is IQM version %d. IQM version 2 is needed.",
 			hdr.version
 		);
-		model.close();
+		model_file.close();
 		return 1;
 	}
 
@@ -140,8 +140,8 @@ int main(int argc, char **argv)
 	char *file = new char[hdr.filesize];
 
 	// read the rest of the file into the buffer, do the rest in-memory.
-	model.read(file, 1, hdr.filesize);
-	model.close();
+	model_file.read(file, 1, hdr.filesize);
+	model_file.close();
 
 	/*
 	std::vector<std::string> strings;
@@ -230,8 +230,12 @@ int main(int argc, char **argv)
 	WindowParams params;
 	params.width = 960;
 	params.height = 540;
+	params.samples = 4;
 	if (!wnd.open(params, "Model loading test"))
 		return 1;
+
+	// cinnamon leaves a ghost of the window if it crashes too fast.
+	usleep(125000);
 
 	GLuint buffers[2], vao;
 	glGenVertexArrays(1, &vao);
@@ -242,7 +246,7 @@ int main(int argc, char **argv)
 	LOG->Debug("%ldK", hdr.num_triangles*sizeof(vertex)/1024);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, hdr.num_triangles*sizeof(vertex), verts, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, hdr.num_vertices*sizeof(vertex), verts, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr.num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
@@ -264,25 +268,45 @@ int main(int argc, char **argv)
 		p.BindAttrib(2, "vNormal");
 		p.BindAttrib(3, "vTangent");
 		p.Link();
-		p.Bind();
-		glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-		glm::mat4 view = glm::lookAt(glm::vec3(0, -35, 2), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
-		glm::mat4 projection = glm::perspective(55.0f, 960.f/540.f, 0.1f, 100.0f);
-		p.SetMatrix4("View", view);
-		p.SetMatrix4("ModelViewProjection", projection * view * position);
-		p.SetVector2("Viewport", glm::vec2(960, 540));
+	}
+
+	ShaderProgram outline("Skydome.Vertex.Outline.GL30", "Skydome.Fragment.Outline.GL30");
+	{
+		outline.BindAttrib(0, "vPosition");
+		outline.BindAttrib(1, "vCoords");
+		outline.BindAttrib(2, "vNormal");
+		outline.BindAttrib(3, "vTangent");
+		outline.Link();
 	}
 
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
+	glfwSwapInterval(1);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW); // IQM winds clockwise.
 
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
 		glClearColor(0.25, 0.25, 0.25, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glm::mat4 model(1.0);
+		model = glm::translate(model, glm::vec3(0, 3, 0.0));
+		model = glm::rotate<float>(model, glm::mod(glfwGetTime() * 25, 360.0), glm::vec3(0.0, 0.0, 1.0));
+		model = glm::translate(model, glm::vec3(0.0, 0, -1.5));
+		glm::mat4 view = glm::lookAt(glm::vec3(0, -10, 2.5), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
+		glm::mat4 projection = glm::perspective(40.0f, 960.f/540.f, 0.1f, 100.0f);
+
+		p.Bind();
+		p.SetMatrix4("ModelView", view * model);
+		p.SetMatrix4("Projection", projection);
+
+		outline.Bind();
+		outline.SetMatrix4("ModelView", view * model);
+		outline.SetMatrix4("Projection", projection);
 
 		for (unsigned i = 0; i < hdr.num_meshes; ++i)
 		{
@@ -290,19 +314,26 @@ int main(int argc, char **argv)
 			int start = m.first_triangle;
 			int end   = m.first_triangle + m.num_triangles;
 			int count = end - start;
+			outline.Bind();
+			glCullFace(GL_FRONT);
+			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
+			glCullFace(GL_BACK);
+			p.Bind();
 			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
 		}
 
 		CheckError();
 
 		glfwSwapBuffers(w);
-		glfwWaitEvents();
+		glfwPollEvents();
+		//glfwWaitEvents();
 	}
 
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(2, buffers);
 
 	p.Cleanup();
+	outline.Cleanup();
 
 	glfwDestroyWindow(w);
 
