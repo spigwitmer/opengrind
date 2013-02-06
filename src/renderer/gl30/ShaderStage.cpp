@@ -69,6 +69,7 @@ namespace
 			else if (found)
 			{
 				end = i-1;
+				break;
 			}
 		}
 
