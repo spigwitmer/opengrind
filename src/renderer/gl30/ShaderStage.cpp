@@ -80,7 +80,7 @@ namespace
 		directives.push_back("#version 130");
 
 		stringstream ss;
-		ss << "#line " << begin + directives.size();
+		ss << "#line " << begin + directives.size() - 1;
 		directives.push_back(ss.str());
 
 		src.clear();
