@@ -7,6 +7,10 @@
 #include <vector>
 #include <string>
 
+// Man, does this look redundant.
+namespace Nepgear
+{
+
 Nepgear::Nepgear(const int argc, char **argv, const char *log_file)
 {
 	using namespace std;
@@ -49,6 +53,8 @@ Nepgear::~Nepgear()
 	SAFE_DELETE(LOG);
 
 	File::deinit();
+}
+
 }
 
 /**

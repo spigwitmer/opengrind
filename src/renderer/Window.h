@@ -3,6 +3,9 @@
 #include <string>
 #include "Stereoscopic.h"
 
+
+namespace Nepgear
+{
 struct WindowParams
 {
 	WindowParams() :
@@ -34,3 +37,5 @@ public:
 	void *handle;
 	WindowParams params;
 };
+
+}

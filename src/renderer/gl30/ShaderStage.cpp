@@ -40,7 +40,7 @@ namespace
 		// Read in file from the VFS, convert to std::string
 		string src;
 		{
-			File f(path);
+			Nepgear::File f(path);
 			if (!f.open())
 				LOG->Warn(f.get_last_error());
 

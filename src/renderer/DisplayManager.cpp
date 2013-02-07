@@ -2,6 +2,9 @@
 #include <GL/glfw3.h>
 #include "DisplayManager.h"
 
+namespace Nepgear
+{
+
 void Window::close()
 {
 	glfwDestroyWindow((GLFWwindow*)handle);
@@ -15,6 +18,8 @@ bool Window::is_focused()
 bool Window::should_close()
 {
 	return glfwGetWindowParam((GLFWwindow*)handle, GLFW_SHOULD_CLOSE) != 0;
+}
+
 }
 
 /**

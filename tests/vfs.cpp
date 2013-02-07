@@ -7,10 +7,10 @@ const size_t expected_length = 3369;
 
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "vfs-test.log");
+	Nepgear::Nepgear ng(argc, argv, "vfs-test.log");
 	LOG->ShowTraces(true);
 
-	File f("tests");
+	Nepgear::File f("tests");
 	if (f.is_dir())
 		LOG->Trace("Found tests directory");
 

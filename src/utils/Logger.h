@@ -14,6 +14,9 @@
 #define PRINTF(m, n)
 #endif
 
+namespace Nepgear
+{
+
 enum LogLevel
 {
 	LOG_TRACE	= 0x01,
@@ -68,5 +71,7 @@ private:
 	bool m_use_colors, m_show_traces, m_show_debug;
 };
 
+}
+
 // Convenience throughout the program, heh
-extern Logger *LOG;
+extern Nepgear::Logger *LOG;

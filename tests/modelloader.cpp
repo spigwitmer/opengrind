@@ -4,6 +4,13 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
 
+#if 0
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#define X11
+#include <GL/glfw3native.h>
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -79,12 +86,35 @@ struct iqm_mesh
 	uint first_triangle, num_triangles;
 };
 
+struct iqm_joint
+{
+    uint name;
+    int parent; // parent < 0 means this is a root bone
+    float translate[3], rotate[4], scale[3]; 
+    // translate is translation <Tx, Ty, Tz>, and rotate is quaternion rotation <Qx, Qy, Qz, Qw>
+    // rotation is in relative/parent local space
+    // scale is pre-scaling <Sx, Sy, Sz>
+    // output = (input*scale)*rotation + translation
+};
+
+struct iqm_pose
+{
+    int parent; // parent < 0 means this is a root bone
+    uint channelmask; // mask of which 10 channels are present for this joint pose
+    float channeloffset[10], channelscale[10]; 
+    // channels 0..2 are translation <Tx, Ty, Tz> and channels 3..6 are quaternion rotation <Qx, Qy, Qz, Qw>
+    // rotation is in relative/parent local space
+    // channels 7..9 are scale <Sx, Sy, Sz>
+    // output = (input*scale)*rotation + translation
+};
+
+
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "model-loader.log");
+	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
 
-	File model_file;
-	model_file.open("models/suzanne.iqm", FileAccessMode_Read);
+	Nepgear::File model_file;
+	model_file.open("models/suzanne.iqm", Nepgear::FileAccessMode_Read);
 
 	struct iqm_header
 	{
@@ -226,16 +256,24 @@ int main(int argc, char **argv)
 
 	delete[] file;
 
-	GLWindow wnd;
-	WindowParams params;
+	Nepgear::GLWindow wnd;
+	Nepgear::WindowParams params;
 	params.width = 960;
 	params.height = 540;
 	params.samples = 4;
 	if (!wnd.open(params, "Model loading test"))
 		return 1;
 
+	GLFWwindow *w = (GLFWwindow*)wnd.handle;
+
+#ifdef X11
+	Display* xdpy = glfwGetX11Display();
+	Window xwnd = glfwGetX11Window(w);
+#endif
+
+
 	// cinnamon leaves a ghost of the window if it crashes too fast.
-	usleep(125000);
+	usleep(17000); // sleep for 17ms, should be enough.
 
 	GLuint buffers[2], vao;
 	glGenVertexArrays(1, &vao);
@@ -279,7 +317,6 @@ int main(int argc, char **argv)
 		outline.Link();
 	}
 
-	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
 	glfwSwapInterval(1);
@@ -288,14 +325,37 @@ int main(int argc, char **argv)
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW); // IQM winds clockwise.
 
+	double now = 0.0, then = 0.0, delta = 0.0;
+	double pos = 0.0;
+	bool moving = true;
+
+	int button_held = 0;
+
+	LOG->Debug("%d meshes", hdr.num_meshes);
+
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
+		now = glfwGetTime();
+		delta = now - then;
+		then = now;
 		glClearColor(0.25, 0.25, 0.25, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		if (glfwGetKey(w, GLFW_KEY_SPACE))
+		{
+			if (button_held < 2)
+				button_held++;
+		}
+		else button_held = 0;
+
+		if (button_held == 1)
+			moving = !moving;
+
+		if (moving) pos += delta;
+
 		glm::mat4 model(1.0);
 		model = glm::translate(model, glm::vec3(0, 3, 0.0));
-		model = glm::rotate<float>(model, glm::mod(glfwGetTime() * 25, 360.0), glm::vec3(0.0, 0.0, 1.0));
+		model = glm::rotate<float>(model, glm::mod(pos * 25, 360.0), glm::vec3(0.0, 0.0, 1.0));
 		model = glm::translate(model, glm::vec3(0.0, 0, -1.5));
 		glm::mat4 view = glm::lookAt(glm::vec3(0, -10, 2.5), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
 		glm::mat4 projection = glm::perspective(40.0f, 960.f/540.f, 0.1f, 100.0f);

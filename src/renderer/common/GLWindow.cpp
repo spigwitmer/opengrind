@@ -4,6 +4,9 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
 
+namespace Nepgear
+{
+
 bool GLWindow::open(WindowParams p, std::string title)
 {
 	glfwWindowHint(GLFW_DEPTH_BITS, 24);
@@ -37,4 +40,6 @@ bool GLWindow::open(WindowParams p, std::string title)
 		LOG->Error("Unable to load required OpenGL extensions.");
 
 	return true;
+}
+
 }

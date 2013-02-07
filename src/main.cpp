@@ -22,9 +22,12 @@
 
 using namespace std;
 
+namespace Nepgear
+{
 const char *Nepgear::FullName = "OpenGrind";
 const char *Nepgear::UnixName = "opengrind";
 const char *Nepgear::Arg0;
+}
 
 class PrefsManager : public Singleton<PrefsManager>
 {
@@ -53,14 +56,14 @@ static int run()
 	PrefsManager	*prefs   = PrefsManager::GetSingleton();
 
 	RenderSystem *renderer = new RenderSystem_GL30();
-	WindowParams p;
+	Nepgear::WindowParams p;
 	p.width = prefs->GetInteger("Display", "Width");
 	p.height = prefs->GetInteger("Display", "Height");
 	p.fullscreen = prefs->GetInteger("Display", "Fullscreen");
 	p.fullscreen_monitor = prefs->GetInteger("Display", "FullscreenMonitor");
 	p.stereoscopic_mode = StereoscopicMode_SBS;
 
-	Window *window = new GLWindow();
+	Nepgear::Window *window = new Nepgear::GLWindow();
 
 	display->SetRenderer(renderer);
 	display->SetWindow(window);
@@ -87,7 +90,7 @@ static int run()
 		// We don't need dirs or anything but Lua files, here.
 		string ext = utils::chop(file, ".", true);
 
-		File f(file);
+		Nepgear::File f(file);
 		if (f.is_dir() || ext != "lua")
 			continue;
 
@@ -125,6 +128,6 @@ static int run()
 
 int main(int argc, char **argv)
 {
-	Nepgear ng(argc, argv, "opengrind.log");
+	Nepgear::Nepgear ng(argc, argv, "opengrind.log");
 	return run();
 }

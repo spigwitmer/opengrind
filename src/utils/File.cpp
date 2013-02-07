@@ -8,6 +8,9 @@
 
 using namespace std;
 
+namespace Nepgear
+{
+
 void File::init()
 {
 	assert(!PHYSFS_isInit());
@@ -216,4 +219,6 @@ string File::get_last_error()
 	}
 
 	return ret;
+}
+
 }

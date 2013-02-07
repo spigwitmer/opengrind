@@ -5,7 +5,11 @@
 #include "utils/Singleton.h"
 #include <glm/glm.hpp>
 
+
+namespace Nepgear
+{
 class Window;
+}
 
 class InputManager : public Singleton<InputManager>
 {
@@ -15,7 +19,7 @@ public:
 
 	void DiscardQueue();
 
-	void connect(Window*);
+	void connect(Nepgear::Window*);
 
 	void Update();
 
@@ -29,7 +33,7 @@ public:
 	glm::ivec2 &GetMousePos() const;
 
 private:
-	Window *m_window;
+	Nepgear::Window *m_window;
 };
 
 /**

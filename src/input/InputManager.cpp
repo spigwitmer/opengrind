@@ -228,7 +228,7 @@ InputManager::InputManager()
 	g_vQueue.reserve(16);
 }
 
-void InputManager::connect(Window *w)
+void InputManager::connect(Nepgear::Window *w)
 {
 	m_window = w;
 

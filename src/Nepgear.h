@@ -2,6 +2,9 @@
 
 #include "global.h"
 
+namespace Nepgear
+{
+
 class Nepgear
 {
 public:
@@ -14,6 +17,8 @@ public:
 	static const char* FullName;
 	static const char* UnixName;
 };
+
+}
 
 /**
  * Colby Klein (c) 2011

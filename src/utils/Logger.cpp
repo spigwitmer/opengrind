@@ -7,9 +7,12 @@
 #include <cstdlib>
 #include <physfs.h>
 
-Logger *LOG = NULL;
-
 using namespace std;
+
+Nepgear::Logger *LOG = NULL;
+
+namespace Nepgear
+{
 
 /*
  * We'll need to do this in several functions and making it a normal function
@@ -157,6 +160,8 @@ void Logger::Error(const char *in, ...)
 	FORMAT(str);
 
 	Internal(str, "ERROR", FG_RED);
+}
+
 }
 
 /**

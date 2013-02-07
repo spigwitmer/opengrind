@@ -15,7 +15,7 @@ void RenderSystem::SetViewport(glm::vec4 vp)
 
 glm::vec4 RenderSystem::GetViewport()
 {
-	Window *w = DisplayManager::GetSingleton()->GetWindow();
+	Nepgear::Window *w = DisplayManager::GetSingleton()->GetWindow();
 	glm::vec4 view = m_viewport;
 
 	if (w->params.stereoscopic_mode == StereoscopicMode_SBS)

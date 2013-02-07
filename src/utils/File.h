@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 
+namespace Nepgear
+{
+
 enum FileAccessMode
 {
 	FileAccessMode_Read = 0,
@@ -49,3 +52,5 @@ protected:
 	void *handle; // PhysFS file handle
 	FileAccessMode mode;
 };
+
+}
