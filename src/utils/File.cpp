@@ -119,7 +119,6 @@ bool File::close()
 {
 	if (!is_open())
 		return true;
-	flush();
 	return PHYSFS_close((PHYSFS_File*)handle) != 0;
 }
 
