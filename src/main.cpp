@@ -1,24 +1,24 @@
 #include <GLXW/glxw.h>
 
-#include "Nepgear.h"
-#include "screens/ScreenManager.h"
-#include "input/InputManager.h"
+#include "nepgear.h"
+#include "screens/screen_manager.h"
+#include "input/input_manager.h"
 
 // These two are singletons for convenience.
-#include "events/EventManager.h"
-#include "utils/Logger.h"
-#include "utils/StringUtils.h"
+#include "event/event_manager.h"
+#include "utils/logger.h"
+#include "utils/string_utils.h"
 
 #include "global.h"
 #include <physfs.h>
 
 // XXX
-#include "renderer/DisplayManager.h"
-#include "renderer/RenderSystem.h"
-#include "renderer/gl30/RenderSystem_GL30.h"
-#include "renderer/common/GLWindow.h"
+#include "renderer/display_manager.h"
+#include "renderer/render_system.h"
+#include "renderer/gl30/render_system_gl30.h"
+#include "renderer/common/window_gl.h"
 
-#include "lua/LuaManager.h"
+#include "lua/lua_manager.h"
 
 using namespace std;
 
@@ -63,7 +63,7 @@ static int run()
 	p.fullscreen_monitor = prefs->GetInteger("Display", "FullscreenMonitor");
 	p.stereoscopic_mode = StereoscopicMode_SBS;
 
-	Nepgear::Window *window = new Nepgear::GLWindow();
+	Nepgear::Window *window = new Nepgear::Window_GL();
 
 	display->SetRenderer(renderer);
 	display->SetWindow(window);

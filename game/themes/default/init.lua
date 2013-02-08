@@ -10,7 +10,9 @@ Overlays = {
 }
 
 -- TODO: change this stuff up
-ScreenTest = Screens.TitleMenu
+ScreenTest = {
+	Class="ScreenGameplay"
+}
 
 --Nepgear.set_initial_screen(Screens.Intro)
 --Nepgear.set_overlay_screens(Overlays)

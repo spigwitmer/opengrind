@@ -7,11 +7,12 @@
 #include <map>
 
 #include "global.h"
-#include "Nepgear.cpp"
-#include "utils/File.h"
-#include "renderer/common/Error.h"
-#include "renderer/common/GLWindow.h"
-#include "renderer/gl30/Shader.h"
+#include "nepgear.h"
+#include "utils/logger.h"
+#include "utils/file.h"
+#include "renderer/common/error.h"
+#include "renderer/common/window_gl.h"
+#include "renderer/gl30/shader.h"
 
 #include "helpers.h"
 
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
 {
 	Nepgear::Nepgear ng(argc, argv, "shader-test.log");
 
-	Nepgear::GLWindow wnd;
+	Nepgear::Window_GL wnd;
 	Nepgear::WindowParams params;
 	params.width = 960;
 	params.height = 540;

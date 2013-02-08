@@ -1,5 +1,5 @@
-#include "Nepgear.h"
-#include "utils/Logger.h"
+#include "nepgear.h"
+#include "utils/logger.h"
 #include "helpers.h"
 
 // *known* size of tests/foo.txt.

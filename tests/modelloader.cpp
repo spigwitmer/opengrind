@@ -1,4 +1,4 @@
-#include "Nepgear.h"
+#include "nepgear.h"
 #include "helpers.h"
 
 #include <GLXW/glxw.h>
@@ -20,11 +20,12 @@
 #include <string>
 #include <map>
 
-#include "utils/File.h"
+#include "utils/file.h"
+#include "utils/logger.h"
 
-#include "renderer/common/GLWindow.h"
-#include "renderer/common/Error.h"
-#include "renderer/gl30/Shader.h"
+#include "renderer/common/window_gl.h"
+#include "renderer/common/error.h"
+#include "renderer/gl30/shader.h"
 
 static void resize(GLFWwindow *w, int width, int height)
 {
@@ -32,8 +33,6 @@ static void resize(GLFWwindow *w, int width, int height)
 	ShaderProgram *p = (ShaderProgram*)glfwGetWindowUserPointer(w);
 	p->SetVector2("Viewport", glm::vec2(width, height));
 }
-
-#include "utils/Logger.h"
 
 #define IQM_MAGIC "INTERQUAKEMODEL\0"
 
@@ -108,7 +107,13 @@ struct iqm_pose
     // output = (input*scale)*rotation + translation
 };
 
-
+namespace
+{
+float calc_fxaa_alpha(glm::vec3 in)
+{
+	return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
+}
+}
 int main(int argc, char **argv)
 {
 	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
@@ -256,7 +261,7 @@ int main(int argc, char **argv)
 
 	delete[] file;
 
-	Nepgear::GLWindow wnd;
+	Nepgear::Window_GL wnd;
 	Nepgear::WindowParams params;
 	params.width = 960;
 	params.height = 540;
@@ -338,7 +343,10 @@ int main(int argc, char **argv)
 		now = glfwGetTime();
 		delta = now - then;
 		then = now;
-		glClearColor(0.25, 0.25, 0.25, 1.0);
+		glm::vec4 color(0.25, 0.25, 0.25, 1.0);
+		color.a = calc_fxaa_alpha(glm::vec3(color.r, color.g, color.b));
+
+		glClearColor(color.r, color.g, color.b, color.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (glfwGetKey(w, GLFW_KEY_SPACE))
