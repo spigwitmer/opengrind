@@ -123,7 +123,7 @@ bool ShaderProgram::Link()
 
 		CheckError();
 
-		LOG->Warn("%s", error.c_str());
+		LOG->Error("%s", error.c_str());
 
 		return false;
 	}

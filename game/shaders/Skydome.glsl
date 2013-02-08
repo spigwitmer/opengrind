@@ -55,6 +55,8 @@ void main()
 		output += Id + Is;
 	}
 
+	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+
 	frag_color = output;
 }
 
@@ -76,7 +78,10 @@ out vec4 frag_color;
 
 void main()
 {
-	frag_color = vec4(0.1, 0.0, 0.0, 1.0);
+	vec4 output = vec4(0.1, 0.0, 0.0, 1.0);
+	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+
+	frag_color = output;
 }
 
 -- old frag stuff
@@ -113,5 +118,8 @@ void main()
 
  	float power = 10.0;
 
-	frag_color = color + spec;
+ 	vec4 output = color + spec;
+	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+
+	frag_color = output;
 }

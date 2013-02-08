@@ -9,21 +9,18 @@
 // #define FXAA_GLSL_130 1
 // #define FXAA_QUALITY__PRESET 13
 
--- Vertex
-#version 150
-
+-- Vertex.GL30
 in vec4 vPosition;
-in vec2 vTexCoord;
+in vec2 vCoords;
 
 out vec2 TexCoord;
 
 void main() {
-	TexCoord = vTexCoord;
+	TexCoord = vCoords;
 	gl_Position = vPosition;
 }
 
--- Fragment
-#version 150
+-- Fragment.GL30
 uniform sampler2D Texture;
 in vec2 TexCoord;
 

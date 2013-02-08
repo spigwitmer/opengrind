@@ -26,6 +26,7 @@
 #include "renderer/common/window_gl.h"
 #include "renderer/common/error.h"
 #include "renderer/gl30/shader.h"
+#include "renderer/gl30/postprocess.h"
 
 static void resize(GLFWwindow *w, int width, int height)
 {
@@ -269,6 +270,9 @@ int main(int argc, char **argv)
 	if (!wnd.open(params, "Model loading test"))
 		return 1;
 
+	// MSAA looks better for the test scene
+	bool fxaa_enabled = false;
+
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 
 #ifdef X11
@@ -322,6 +326,17 @@ int main(int argc, char **argv)
 		outline.Link();
 	}
 
+	ShaderProgram fxaa("FXAA.Vertex.GL30", "FXAA.Fragment.GL30");
+	{
+		fxaa.BindAttrib(0, "vPosition");
+		fxaa.BindAttrib(1, "vCoords");
+		fxaa.Link();
+		fxaa.Bind();
+		fxaa.SetInteger("Texture", 0);
+	}
+
+	CheckError();
+
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
 	glfwSwapInterval(1);
@@ -338,15 +353,31 @@ int main(int argc, char **argv)
 
 	LOG->Debug("%d meshes", hdr.num_meshes);
 
+	LOG->Debug("foo");
+	CheckError();
+
+	Nepgear::PostProcessEffect fxaa_pp;
+	if (fxaa_enabled)
+	{
+		fxaa_pp.init(960, 540);
+		fxaa_pp.set_material(&fxaa);
+		fxaa_pp.bind();
+	}
+
+	CheckError();
+
+	glm::vec4 color(0.25, 0.25, 0.25, 1.0);
+	color.a = calc_fxaa_alpha(glm::vec3(color.r, color.g, color.b));
+	glClearColor(color.r, color.g, color.b, color.a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
 		now = glfwGetTime();
 		delta = now - then;
 		then = now;
-		glm::vec4 color(0.25, 0.25, 0.25, 1.0);
-		color.a = calc_fxaa_alpha(glm::vec3(color.r, color.g, color.b));
 
-		glClearColor(color.r, color.g, color.b, color.a);
+		if (fxaa_enabled) fxaa_pp.bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (glfwGetKey(w, GLFW_KEY_SPACE))
@@ -367,6 +398,8 @@ int main(int argc, char **argv)
 		model = glm::translate(model, glm::vec3(0.0, 0, -1.5));
 		glm::mat4 view = glm::lookAt(glm::vec3(0, -10, 2.5), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
 		glm::mat4 projection = glm::perspective(40.0f, 960.f/540.f, 0.1f, 100.0f);
+
+		glBindVertexArray(vao);
 
 		p.Bind();
 		p.SetMatrix4("ModelView", view * model);
@@ -390,11 +423,16 @@ int main(int argc, char **argv)
 			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
 		}
 
+		if (fxaa_enabled)
+		{
+			fxaa_pp.unbind();
+			fxaa_pp.draw();
+		}
+
 		CheckError();
 
 		glfwSwapBuffers(w);
 		glfwPollEvents();
-		//glfwWaitEvents();
 	}
 
 	glDeleteVertexArrays(1, &vao);
@@ -402,6 +440,7 @@ int main(int argc, char **argv)
 
 	p.Cleanup();
 	outline.Cleanup();
+	fxaa.Cleanup();
 
 	glfwDestroyWindow(w);
 
