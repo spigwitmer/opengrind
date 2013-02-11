@@ -20,6 +20,8 @@
 #include <string>
 #include <map>
 
+#include <unistd.h>
+
 #include "utils/file.h"
 #include "utils/logger.h"
 
