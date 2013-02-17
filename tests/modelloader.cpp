@@ -34,6 +34,8 @@
 #include "actors/iqm.h"
 #include "actors/model.h"
 
+#include "utils/timer.h"
+
 namespace
 {
 
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -142,11 +144,34 @@ int main(int argc, char **argv)
 
 	glfwSetInputMode(w, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
 
+	int frames = 0;
+	int last_fps;
+	Nepgear::Timer frametimer;
+
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
 		now = glfwGetTime();
 		delta = now - then;
 		then = now;
+
+		if (frametimer.Ago() > 1.0)
+		{
+			frametimer.Touch();
+			last_fps = frames;
+			LOG->Debug("FPS: %d (%0.2fms)", frames, (1.0 / frames)*1000);
+			frames = 0;
+		}
+		frames++;
+
+		// if a frame takes more than twice the average, log it.
+		if (last_fps != -1)
+		{
+			double target = 1.0 / last_fps;
+			if (delta > target*2)
+			{
+				LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
+			}
+		}
 
 #ifdef X11
 		/* Nasty hack to support alt+tab with fullscreen windows.
