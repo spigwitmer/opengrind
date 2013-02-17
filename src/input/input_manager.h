@@ -9,7 +9,6 @@
 namespace Nepgear
 {
 class Window;
-}
 
 class InputManager : public Singleton<InputManager>
 {
@@ -19,7 +18,7 @@ public:
 
 	void DiscardQueue();
 
-	void connect(Nepgear::Window*);
+	void connect(Window*);
 
 	void Update();
 
@@ -33,8 +32,10 @@ public:
 	glm::ivec2 &GetMousePos() const;
 
 private:
-	Nepgear::Window *m_window;
+	Window *m_window;
 };
+
+}
 
 /**
  * Colby Klein, Matt Vandermeulen (c) 2011

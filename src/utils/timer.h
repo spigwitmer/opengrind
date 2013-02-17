@@ -1,5 +1,8 @@
 #pragma once
 
+namespace Nepgear
+{
+
 class Timer
 {
 public:
@@ -15,3 +18,5 @@ private:
 	// The time we were created, or touched
 	double m_start;
 };
+
+}

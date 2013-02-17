@@ -1,6 +1,9 @@
 #include "button_state.h"
 #include "utils/logger.h"
 
+namespace Nepgear
+{
+
 ButtonState::ButtonState( unsigned iButton ) : m_iButton( iButton ), m_State( PRESS_NONE )
 {
 	/* This space intentionally left blank */
@@ -44,4 +47,6 @@ void ButtonState::Press( bool b )
 			LOG->Warn( "[ButtonState]  You should never see this :<" );
 			break;
 	}
+}
+
 }

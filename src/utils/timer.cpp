@@ -2,6 +2,9 @@
 #include <GL/glfw3.h>
 #include <sstream>
 
+namespace Nepgear
+{
+
 Timer::Timer() : m_start(glfwGetTime()) {}
 
 void Timer::Touch()
@@ -12,4 +15,6 @@ void Timer::Touch()
 double Timer::Ago() const
 {
 	return glfwGetTime() - m_start;
+}
+
 }

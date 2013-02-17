@@ -60,7 +60,7 @@ void Screen::Init()
 bool Screen::HandleEvent(const string &name, const IEvent &evt)
 {
 	if (name == "Input") {
-		Event<InputManager*> evt = (Event<InputManager*>)evt;
+		Event<Nepgear::InputManager*> evt = (Event<Nepgear::InputManager*>)evt;
 		while (evt.data->GetNextInput()) {
 			LOG->Debug("foo");
 		}

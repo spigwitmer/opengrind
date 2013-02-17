@@ -47,6 +47,8 @@ public:
 
 static int run()
 {
+	using namespace Nepgear;
+
 	ScreenManager screen;
 
 	// XXX: I don't like singletons, but I like actually getting things done.
@@ -56,14 +58,14 @@ static int run()
 	PrefsManager	*prefs   = PrefsManager::GetSingleton();
 
 	RenderSystem *renderer = new RenderSystem_GL30();
-	Nepgear::WindowParams p;
+	WindowParams p;
 	p.width = prefs->GetInteger("Display", "Width");
 	p.height = prefs->GetInteger("Display", "Height");
 	p.fullscreen = prefs->GetInteger("Display", "Fullscreen");
 	p.fullscreen_monitor = prefs->GetInteger("Display", "FullscreenMonitor");
 	p.stereoscopic_mode = StereoscopicMode_SBS;
 
-	Nepgear::Window *window = new Nepgear::Window_GL();
+	Window *window = new Window_GL();
 
 	display->SetRenderer(renderer);
 	display->SetWindow(window);
@@ -90,7 +92,7 @@ static int run()
 		// We don't need dirs or anything but Lua files, here.
 		string ext = utils::chop(file, ".", true);
 
-		Nepgear::File f(file);
+		File f(file);
 		if (f.is_dir() || ext != "lua")
 			continue;
 

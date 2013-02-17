@@ -2,6 +2,9 @@
 
 #include "utils/timer.h"
 
+namespace Nepgear
+{
+
 enum PressType
 {
 	PRESS_NONE,
@@ -41,3 +44,5 @@ private:
 	// Our timer
 	Timer m_Timer;
 };
+
+}

@@ -18,7 +18,7 @@ namespace
 	// Calculate average FPS given a time and delta
 	int frames = 0;
 	int last_fps = -1;
-	Timer frametimer;
+	Nepgear::Timer frametimer;
 }
 
 MakeScreenMap *ScreenManager::GetMap()
@@ -126,7 +126,7 @@ void ScreenManager::PushScreen(const std::string &sName)
 		}		
 		LOG->Trace("Creating screen \"%s\" [class => \"%s\"]", sName.c_str(), sClass.c_str());
 
-		Timer t;
+		Nepgear::Timer t;
 
 		Screen* scr = it->second(sName);
 		scr->InitInternal();

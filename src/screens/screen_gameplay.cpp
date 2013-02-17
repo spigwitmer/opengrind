@@ -24,7 +24,7 @@ bool ScreenGameplay::HandleEvent(const string &name, const IEvent &evt)
 {
 	if (name == "Input")
 	{
-		InputManager *im = InputManager::GetSingleton();
+		Nepgear::InputManager *im = Nepgear::InputManager::GetSingleton();
 		if (im->GetButton(RS_KEY_SPACE)->IsDown())
 			LOG->Debug("the final frontier");
 	}

@@ -132,19 +132,20 @@ static inline RSButtons TranslateGLFW(int i)
 	return RS_KEY_INVALID;
 }
 
-// Our internal list of buttons
-static ButtonState *g_pButtons[RS_INPUT_MAX];
-
-// Our static queue, and its pointer
-static std::vector<ButtonState*> g_vQueue;
-static unsigned g_iQueuePtr = 0;
-
-// The mouse position
-static glm::ivec2 g_iMousePos;
-
-// Define our callbacks
-namespace
+namespace Nepgear
 {
+
+	// Our internal list of buttons
+	ButtonState *g_pButtons[RS_INPUT_MAX];
+
+	// Our static queue, and its pointer
+	std::vector<ButtonState*> g_vQueue;
+	unsigned g_iQueuePtr = 0;
+
+	// The mouse position
+	glm::ivec2 g_iMousePos;
+
+	// Define our callbacks
 	void KeyboardCallback(GLFWwindow*, int iButton, int iDown)
 	{
 		// Translate the button
@@ -218,6 +219,9 @@ namespace
 	}
 }
 
+namespace Nepgear
+{
+
 InputManager::InputManager()
 {
 	// Initialize all our buttons
@@ -228,7 +232,7 @@ InputManager::InputManager()
 	g_vQueue.reserve(16);
 }
 
-void InputManager::connect(Nepgear::Window *w)
+void InputManager::connect(Window *w)
 {
 	m_window = w;
 
@@ -293,6 +297,8 @@ glm::ivec2 &InputManager::GetMousePos() const
 {
 	// Just get the position
 	return g_iMousePos;
+}
+
 }
 
 /**
