@@ -43,7 +43,7 @@ void main()
 
 	vec4 v_eye = normalize(-vpeye);
 
-	vec4 output = ambient;
+	vec4 color_out = ambient;
 	for (int i = 0; i < 3; i++)
 	{
 		vec4 s_eye = vec4(light_dirs[i], 1.0);
@@ -52,12 +52,12 @@ void main()
 		vec4 Id = light_cols[i] * color * max(dot(s_eye, vneye), 0.0);
 		vec4 Is = vec4(pow(max(dot(h_eye, vneye), 0.0), power)) * 0.125;
 
-		output += Id + Is;
+		color_out += Id + Is;
 	}
 
-	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+	color_out.a = dot(color_out.rgb, vec3(0.299, 0.587, 0.114));
 
-	frag_color = output;
+	frag_color = color_out;
 }
 
 -- Vertex.Outline.GL30
@@ -78,10 +78,10 @@ out vec4 frag_color;
 
 void main()
 {
-	vec4 output = vec4(0.1, 0.0, 0.0, 1.0);
-	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+	vec4 color_out = vec4(0.1, 0.0, 0.0, 1.0);
+	color_out.a = dot(color_out.rgb, vec3(0.299, 0.587, 0.114));
 
-	frag_color = output;
+	frag_color = color_out;
 }
 
 -- old frag stuff
@@ -118,8 +118,8 @@ void main()
 
  	float power = 10.0;
 
- 	vec4 output = color + spec;
-	output.a = dot(output.rgb, vec3(0.299, 0.587, 0.114));
+ 	vec4 color_out = color + spec;
+	color_out.a = dot(color_out.rgb, vec3(0.299, 0.587, 0.114));
 
-	frag_color = output;
+	frag_color = color_out;
 }
