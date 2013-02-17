@@ -31,298 +31,45 @@
 #include "renderer/gl30/shader.h"
 #include "renderer/gl30/postprocess.h"
 
-static void resize(GLFWwindow *w, int width, int height)
+#include "actors/iqm.h"
+#include "actors/model.h"
+
+namespace
+{
+
+void resize(GLFWwindow *w, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	ShaderProgram *p = (ShaderProgram*)glfwGetWindowUserPointer(w);
 	p->SetVector2("Viewport", glm::vec2(width, height));
 }
 
-
-namespace
-{
 float calc_fxaa_alpha(glm::vec3 in)
 {
 	return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
 }
-}
 
-#define IQM_MAGIC "INTERQUAKEMODEL\0"
-
-typedef unsigned uint;
-typedef unsigned char uchar;
-enum // vertex array type
-{
-	IQM_POSITION     = 0,  // float, 3
-	IQM_TEXCOORD     = 1,  // float, 2
-	IQM_NORMAL       = 2,  // float, 3
-	IQM_TANGENT      = 3,  // float, 4
-	IQM_BLENDINDICES = 4,  // ubyte, 4
-	IQM_BLENDWEIGHTS = 5,  // ubyte, 4
-	IQM_COLOR        = 6,  // ubyte, 4
-	IQM_CUSTOM       = 0x10
-};
-
-enum // vertex array format
-{
-	IQM_BYTE   = 0,
-	IQM_UBYTE  = 1,
-	IQM_SHORT  = 2,
-	IQM_USHORT = 3,
-	IQM_INT    = 4,
-	IQM_UINT   = 5,
-	IQM_HALF   = 6,
-	IQM_FLOAT  = 7,
-	IQM_DOUBLE = 8
-};
-
-struct iqm_header
-{
-	char magic[16]; // the string "INTERQUAKEMODEL\0", 0 terminated
-	uint version; // must be version 2
-	uint filesize;
-	uint flags;
-	uint num_text, ofs_text;
-	uint num_meshes, ofs_meshes;
-	uint num_vertexarrays, num_vertices, ofs_vertexarrays;
-	uint num_triangles, ofs_triangles, ofs_adjacency;
-	uint num_joints, ofs_joints;
-	uint num_poses, ofs_poses;
-	uint num_anims, ofs_anims;
-	uint num_frames, num_framechannels, ofs_frames, ofs_bounds;
-	uint num_comment, ofs_comment;
-	uint num_extensions, ofs_extensions; // these are stored as a linked list, not as a contiguous array
-};
-
-struct iqm_vertexarray
-{
-	uint type;
-	uint flags;
-	uint format;
-	uint size;
-	uint offset;
-};
-
-struct iqm_triangle
-{
-	uint vertex[3];
-};
-
-struct iqm_mesh
-{
-	uint name;
-	uint material;
-	uint first_vertex, num_vertexes;
-	uint first_triangle, num_triangles;
-};
-
-struct iqm_joint
-{
-    uint name;
-    int parent; // parent < 0 means this is a root bone
-    float translate[3], rotate[4], scale[3]; 
-    // translate is translation <Tx, Ty, Tz>, and rotate is quaternion rotation <Qx, Qy, Qz, Qw>
-    // rotation is in relative/parent local space
-    // scale is pre-scaling <Sx, Sy, Sz>
-    // output = (input*scale)*rotation + translation
-};
-
-struct iqm_pose
-{
-    int parent; // parent < 0 means this is a root bone
-    uint channelmask; // mask of which 10 channels are present for this joint pose
-    float channeloffset[10], channelscale[10]; 
-    // channels 0..2 are translation <Tx, Ty, Tz> and channels 3..6 are quaternion rotation <Qx, Qy, Qz, Qw>
-    // rotation is in relative/parent local space
-    // channels 7..9 are scale <Sx, Sy, Sz>
-    // output = (input*scale)*rotation + translation
-};
-
-struct vertex
-{
-	float position[3];
-	float texcoord[2];
-	float normal[3];
-	float tangent[4];
-	uchar blendindex[4];
-	uchar blendweight[4];
-};
-
-vertex *verts = NULL;
-iqm_vertexarray* vertex_arrays = NULL;
-iqm_triangle *tris = NULL;
-iqm_mesh *meshes = NULL;
-
-int iqm_read(Nepgear::File model_file, iqm_header *hdr)
-{
-	/* make sure the iqm file is one we can actually read */
-	model_file.seek(0);
-	model_file.read(hdr->magic, 16, 1);
-	model_file.seek(0);
-
-	model_file.read((char*)hdr, 1, sizeof(iqm_header));
-	model_file.seek(0);
-
-	if (strncmp(hdr->magic, IQM_MAGIC, 16))
-	{
-		LOG->Error("Bad magic: %s", hdr->magic);
-		return 1;
-	}
-
-	if (hdr->version != 2)
-	{
-		LOG->Debug(
-			"This file is IQM version %d. IQM version 2 is needed.",
-			hdr->version
-		);
-		return 1;
-	}
-
-	LOG->Debug("\n%s\n"
-		"version: %d\n"
-		"filesize: %d\n"
-		"flags: %d",
-		hdr->magic, hdr->version,
-		hdr->filesize, hdr->flags
-	);
-
-	char *file = new char[hdr->filesize];
-
-	// read the rest of the file into the buffer, do the rest in-memory.
-	model_file.read(file, 1, hdr->filesize);
-
-	/*
-	std::vector<std::string> strings;
-
-	for (size_t pos = hdr->ofs_text; strings.size() < hdr->num_text; pos++)
-	{
-		size_t prev = pos;
-		while (file[pos] != '\0')
-			pos++;
-		LOG->Debug("%s", file+prev);
-		strings.push_back(std::string(file+prev));
-		pos += pos % 4; // align to 4 bytes, increment.
-	}
-	*/
-
-	vertex_arrays = new iqm_vertexarray[hdr->num_vertexarrays];
-	memcpy(vertex_arrays, &file[hdr->ofs_vertexarrays], hdr->num_vertexarrays*sizeof(iqm_vertexarray));
-
-	tris = new iqm_triangle[hdr->num_triangles];
-	memcpy(tris, &file[hdr->ofs_triangles], hdr->num_triangles*sizeof(iqm_triangle));
-
-	meshes = new iqm_mesh[hdr->num_meshes];
-	memcpy(meshes, &file[hdr->ofs_meshes], hdr->num_meshes*sizeof(iqm_mesh));
-
-	float *inposition = NULL, *innormal = NULL, *intangent = NULL, *intexcoord = NULL;
-	uchar *inblendindex = NULL, *inblendweight = NULL;
-
-	for(unsigned i = 0; i < hdr->num_vertexarrays; i++)
-	{
-		iqm_vertexarray &va = vertex_arrays[i];
-
-		switch(va.type)
-		{
-		case IQM_POSITION:
-			if(va.format != IQM_FLOAT || va.size != 3) assert(0);
-			inposition = (float *)&file[va.offset]; break;
-		case IQM_NORMAL:
-			if(va.format != IQM_FLOAT || va.size != 3) assert(0);
-			innormal = (float *)&file[va.offset]; break;
-		case IQM_TANGENT:
-			if(va.format != IQM_FLOAT || va.size != 4) assert(0);
-			intangent = (float *)&file[va.offset]; break;
-		case IQM_TEXCOORD:
-			if(va.format != IQM_FLOAT || va.size != 2) assert(0);
-			intexcoord = (float *)&file[va.offset]; break;
-		case IQM_BLENDINDICES:
-			if(va.format != IQM_UBYTE || va.size != 4) assert(0);
-			inblendindex = (uchar *)&file[va.offset]; break;
-		case IQM_BLENDWEIGHTS:
-			if(va.format != IQM_UBYTE || va.size != 4) assert(0);
-			inblendweight = (uchar *)&file[va.offset]; break;
-		}
-
-		LOG->Debug(
-			"VA %u: type=%u, flags=%u, format=%u, size=%u, offset=%u",
-			i, va.type, va.flags, va.format, va.size, va.offset
-		);
-	}
-
-	verts = new vertex[hdr->num_vertices];
-
-	for(unsigned i = 0; i < hdr->num_vertices; i++)
-	{
-		vertex &v = verts[i];
-		if(inposition) memcpy(v.position, &inposition[i*3], sizeof(v.position));
-		if(intexcoord) memcpy(v.texcoord, &intexcoord[i*2], sizeof(v.texcoord));
-		if(innormal) memcpy(v.normal, &innormal[i*3], sizeof(v.normal));
-		if(intangent) memcpy(v.tangent, &intangent[i*4], sizeof(v.tangent));
-		if(inblendindex) memcpy(v.blendindex, &inblendindex[i*4], sizeof(v.blendindex));
-		if(inblendweight) memcpy(v.blendweight, &inblendweight[i*4], sizeof(v.blendweight));
-	}
-
-	delete[] file;
-
-	return 0;
-}
-
-void iqm_upload(iqm_header *hdr, GLuint *buffers)
-{
-	glGenVertexArrays(1, &buffers[0]);
-	glGenBuffers(2, &buffers[1]);
-	glBindVertexArray(buffers[0]);
-
-	LOG->Debug("%ldK", hdr->num_triangles*sizeof(vertex)/1024);
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, hdr->num_vertices*sizeof(vertex), verts, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[2]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr->num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
-
-	for (unsigned i = 0; i < 4; ++i)
-		glEnableVertexAttribArray(i);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertex), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(vertex), (void*)(2*sizeof(float)));
-	glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(vertex), (void*)(5*sizeof(float)));
-	glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(vertex), (void*)(9*sizeof(float)));
-
-	CheckError();
-}
-
-void iqm_cleanup()
-{
-	delete[] verts;
-	delete[] tris;
-	delete[] meshes;
-	delete[] vertex_arrays;
 }
 
 int main(int argc, char **argv)
 {
 	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
 
-	Nepgear::File model_file;
-	model_file.open("models/suzanne.iqm", Nepgear::FileAccessMode_Read);
-
-//	Nepgear::Model model;
-//	model.load_from_iqm(iqm_file);
-
-	iqm_header hdr;
-
-	iqm_read(model_file, &hdr);
-
-	model_file.close();
+	Nepgear::File iqm_file;
+	Nepgear::Model model;
 
 	Nepgear::Window_GL wnd;
 	Nepgear::WindowParams params;
-	params.width = 800;
-	params.height = 600;
+	params.width = 1920;
+	params.height = 1200;
 	params.fullscreen = 1;
+	params.fullscreen_monitor = 0;
 	if (!wnd.open(params, "Model loading test"))
 		return 1;
+
+	iqm_file.open("models/suzanne.iqm", Nepgear::FileAccessMode_Read);
+	model.load_file(iqm_file);
+	iqm_file.close();
 
 	bool fxaa_enabled = true;
 
@@ -331,9 +78,6 @@ int main(int argc, char **argv)
 	Display* xdpy = glfwGetX11Display();
 	usleep(17000); // sleep for 17ms, it's enough.
 #endif
-
-	GLuint buffers[3];
-	iqm_upload(&hdr, buffers);
 
 	ShaderProgram p("Skydome.Vertex.GL30", "Skydome.Fragment.GL30");
 	{
@@ -379,14 +123,12 @@ int main(int argc, char **argv)
 
 	int button_held = 0;
 
-	LOG->Debug("%d meshes", hdr.num_meshes);
-
 	CheckError();
 
 	Nepgear::PostProcessEffect fxaa_pp;
 	if (fxaa_enabled)
 	{
-		fxaa_pp.init(1440, 900);
+		fxaa_pp.init(1920, 1200);
 		fxaa_pp.set_material(&fxaa);
 		fxaa_pp.bind();
 	}
@@ -439,36 +181,24 @@ int main(int argc, char **argv)
 
 		if (moving) pos += delta;
 
-		glm::mat4 model(1.0);
-		model = glm::translate(model, glm::vec3(0, 3, 0.0));
-		model = glm::rotate<float>(model, glm::mod(pos * 25, 360.0), glm::vec3(0.0, 0.0, 1.0));
-		model = glm::translate(model, glm::vec3(0.0, 0, -1.5));
+		glm::mat4 xform(1.0);
+		xform = glm::translate(xform, glm::vec3(0, 3, 0.0));
+		xform = glm::rotate<float>(xform, glm::mod(pos * 25, 360.0), glm::vec3(0.0, 0.0, 1.0));
+		xform = glm::translate(xform, glm::vec3(0.0, 0, -1.5));
 		glm::mat4 view = glm::lookAt(glm::vec3(0, -10, 2.5), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
 		glm::mat4 projection = glm::perspective(40.0f, 960.f/540.f, 0.1f, 100.0f);
 
-		glBindVertexArray(buffers[0]);
+		outline.Bind();
+		outline.SetMatrix4("ModelView", view * xform);
+		outline.SetMatrix4("Projection", projection);
+		glCullFace(GL_FRONT);
+		model.draw();
 
 		p.Bind();
-		p.SetMatrix4("ModelView", view * model);
+		p.SetMatrix4("ModelView", view * xform);
 		p.SetMatrix4("Projection", projection);
-
-		outline.Bind();
-		outline.SetMatrix4("ModelView", view * model);
-		outline.SetMatrix4("Projection", projection);
-
-		for (unsigned i = 0; i < hdr.num_meshes; ++i)
-		{
-			iqm_mesh &m = meshes[i];
-			int start = m.first_triangle;
-			int end   = m.first_triangle + m.num_triangles;
-			int count = end - start;
-			outline.Bind();
-			glCullFace(GL_FRONT);
-			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
-			glCullFace(GL_BACK);
-			p.Bind();
-			glDrawRangeElements(GL_TRIANGLES, start*3, end*3, count*3, GL_UNSIGNED_INT, NULL);
-		}
+		glCullFace(GL_BACK);
+		model.draw();
 
 		if (fxaa_enabled)
 		{
@@ -482,16 +212,13 @@ int main(int argc, char **argv)
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &buffers[0]);
-	glDeleteBuffers(2, &buffers[1]);
-
 	p.Cleanup();
 	outline.Cleanup();
 	fxaa.Cleanup();
 
-	glfwDestroyWindow(w);
+	model.cleanup();
 
-	iqm_cleanup();
+	glfwDestroyWindow(w);
 
 	return 0;
 }
