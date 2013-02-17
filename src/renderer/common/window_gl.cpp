@@ -9,10 +9,10 @@ namespace Nepgear
 
 bool Window_GL::open(WindowParams p, std::string title)
 {
-	glfwWindowHint(GLFW_DEPTH_BITS, 24);
-	glfwWindowHint(GLFW_STENCIL_BITS, 8);
-	glfwWindowHint(GLFW_SAMPLES, p.samples);
+//	glfwWindowHint(GLFW_SAMPLES, p.samples);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
 	int count;
 	GLFWmonitor **ml = glfwGetMonitors(&count);
@@ -33,7 +33,7 @@ bool Window_GL::open(WindowParams p, std::string title)
 	// Make sure we were able to create a rendering context.
 	if (!handle)
 	{
-		LOG->Error("Unable to obtain an OpenGL 3.0 rendering context.");
+		LOG->Error("Unable to obtain an OpenGL 3.1 rendering context.");
 		return false;
 	}
 	if (glxwInit() != 0)
