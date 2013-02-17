@@ -11,6 +11,7 @@
 #include <Awesomium/WebCore.h>
 
 using namespace std;
+using namespace Nepgear;
 
 REGISTER_SCREEN(ScreenWebOverlay)
 
