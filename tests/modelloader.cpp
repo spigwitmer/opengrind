@@ -62,9 +62,9 @@ int main(int argc, char **argv)
 
 	Nepgear::Window_GL wnd;
 	Nepgear::WindowParams params;
-	params.width = 1920;
-	params.height = 1200;
-	params.fullscreen = 1;
+	params.width = 1280;
+	params.height = 720;
+	params.fullscreen = 0;
 	params.fullscreen_monitor = 0;
 	if (!wnd.open(params, "Model loading test"))
 		return 1;
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 	Nepgear::PostProcessEffect fxaa_pp;
 	if (fxaa_enabled)
 	{
-		fxaa_pp.init(1920, 1200);
+		fxaa_pp.init(1280, 720);
 		fxaa_pp.set_material(&fxaa);
 		fxaa_pp.bind();
 	}
@@ -167,7 +167,8 @@ int main(int argc, char **argv)
 		if (last_fps != -1)
 		{
 			double target = 1.0 / last_fps;
-			if (delta > target*2)
+			// don't log "skips" which are stupidly small.
+			if (delta > target*2 && target > 0.005)
 			{
 				LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
 			}

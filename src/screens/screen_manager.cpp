@@ -60,7 +60,7 @@ void ScreenManager::Update(bool focus)
 		if (last_fps != -1)
 		{
 			double target = 1.0 / last_fps;
-			if (delta > target*2)
+			if (delta > target*2 && target > 0.005)
 			{
 				LOG->Debug("Skip: %0.0f (%0.0fms)", delta/target, delta*1000);
 			}
