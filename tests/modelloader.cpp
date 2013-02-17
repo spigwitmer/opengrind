@@ -4,6 +4,7 @@
 #include <GLXW/glxw.h>
 #include <GL/glfw3.h>
 
+// enables alt+tab support and cinnamon hack.
 #if 0
 #define GLFW_EXPOSE_NATIVE_X11
 #define GLFW_EXPOSE_NATIVE_GLX
@@ -35,6 +36,15 @@ static void resize(GLFWwindow *w, int width, int height)
 	p->SetVector2("Viewport", glm::vec2(width, height));
 }
 
+
+namespace
+{
+float calc_fxaa_alpha(glm::vec3 in)
+{
+	return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
+}
+}
+
 #define IQM_MAGIC "INTERQUAKEMODEL\0"
 
 typedef unsigned uint;
@@ -62,6 +72,24 @@ enum // vertex array format
 	IQM_HALF   = 6,
 	IQM_FLOAT  = 7,
 	IQM_DOUBLE = 8
+};
+
+struct iqm_header
+{
+	char magic[16]; // the string "INTERQUAKEMODEL\0", 0 terminated
+	uint version; // must be version 2
+	uint filesize;
+	uint flags;
+	uint num_text, ofs_text;
+	uint num_meshes, ofs_meshes;
+	uint num_vertexarrays, num_vertices, ofs_vertexarrays;
+	uint num_triangles, ofs_triangles, ofs_adjacency;
+	uint num_joints, ofs_joints;
+	uint num_poses, ofs_poses;
+	uint num_anims, ofs_anims;
+	uint num_frames, num_framechannels, ofs_frames, ofs_bounds;
+	uint num_comment, ofs_comment;
+	uint num_extensions, ofs_extensions; // these are stored as a linked list, not as a contiguous array
 };
 
 struct iqm_vertexarray
@@ -108,60 +136,43 @@ struct iqm_pose
     // output = (input*scale)*rotation + translation
 };
 
-namespace
+struct vertex
 {
-float calc_fxaa_alpha(glm::vec3 in)
+	float position[3];
+	float texcoord[2];
+	float normal[3];
+	float tangent[4];
+	uchar blendindex[4];
+	uchar blendweight[4];
+};
+
+vertex *verts = NULL;
+iqm_vertexarray* vertex_arrays = NULL;
+iqm_triangle *tris = NULL;
+iqm_mesh *meshes = NULL;
+
+int iqm_read(Nepgear::File model_file, iqm_header *hdr)
 {
-	return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
-}
-}
-int main(int argc, char **argv)
-{
-	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
-
-	Nepgear::File model_file;
-	model_file.open("models/suzanne.iqm", Nepgear::FileAccessMode_Read);
-
-	struct iqm_header
-	{
-		char magic[16]; // the string "INTERQUAKEMODEL\0", 0 terminated
-		uint version; // must be version 2
-		uint filesize;
-		uint flags;
-		uint num_text, ofs_text;
-		uint num_meshes, ofs_meshes;
-		uint num_vertexarrays, num_vertices, ofs_vertexarrays;
-		uint num_triangles, ofs_triangles, ofs_adjacency;
-		uint num_joints, ofs_joints;
-		uint num_poses, ofs_poses;
-		uint num_anims, ofs_anims;
-		uint num_frames, num_framechannels, ofs_frames, ofs_bounds;
-		uint num_comment, ofs_comment;
-		uint num_extensions, ofs_extensions; // these are stored as a linked list, not as a contiguous array
-	} hdr;
-
 	/* make sure the iqm file is one we can actually read */
 	model_file.seek(0);
-	model_file.read(hdr.magic, 16, 1);
+	model_file.read(hdr->magic, 16, 1);
 	model_file.seek(0);
 
-	model_file.read((char*)&hdr, 1, sizeof(hdr));
+	model_file.read((char*)hdr, 1, sizeof(iqm_header));
 	model_file.seek(0);
 
-	if (strncmp(hdr.magic, IQM_MAGIC, 16))
+	if (strncmp(hdr->magic, IQM_MAGIC, 16))
 	{
-		LOG->Error("Bad magic: %s", hdr.magic);
-		model_file.close();
+		LOG->Error("Bad magic: %s", hdr->magic);
 		return 1;
 	}
 
-	if (hdr.version != 2)
+	if (hdr->version != 2)
 	{
 		LOG->Debug(
 			"This file is IQM version %d. IQM version 2 is needed.",
-			hdr.version
+			hdr->version
 		);
-		model_file.close();
 		return 1;
 	}
 
@@ -169,20 +180,19 @@ int main(int argc, char **argv)
 		"version: %d\n"
 		"filesize: %d\n"
 		"flags: %d",
-		hdr.magic, hdr.version,
-		hdr.filesize, hdr.flags
+		hdr->magic, hdr->version,
+		hdr->filesize, hdr->flags
 	);
 
-	char *file = new char[hdr.filesize];
+	char *file = new char[hdr->filesize];
 
 	// read the rest of the file into the buffer, do the rest in-memory.
-	model_file.read(file, 1, hdr.filesize);
-	model_file.close();
+	model_file.read(file, 1, hdr->filesize);
 
 	/*
 	std::vector<std::string> strings;
 
-	for (size_t pos = hdr.ofs_text; strings.size() < hdr.num_text; pos++)
+	for (size_t pos = hdr->ofs_text; strings.size() < hdr->num_text; pos++)
 	{
 		size_t prev = pos;
 		while (file[pos] != '\0')
@@ -193,19 +203,19 @@ int main(int argc, char **argv)
 	}
 	*/
 
-	iqm_vertexarray* vertex_arrays = new iqm_vertexarray[hdr.num_vertexarrays];
-	memcpy(vertex_arrays, &file[hdr.ofs_vertexarrays], hdr.num_vertexarrays*sizeof(iqm_vertexarray));
+	vertex_arrays = new iqm_vertexarray[hdr->num_vertexarrays];
+	memcpy(vertex_arrays, &file[hdr->ofs_vertexarrays], hdr->num_vertexarrays*sizeof(iqm_vertexarray));
 
-	iqm_triangle *tris = new iqm_triangle[hdr.num_triangles];
-	memcpy(tris, &file[hdr.ofs_triangles], hdr.num_triangles*sizeof(iqm_triangle));
+	tris = new iqm_triangle[hdr->num_triangles];
+	memcpy(tris, &file[hdr->ofs_triangles], hdr->num_triangles*sizeof(iqm_triangle));
 
-	iqm_mesh *meshes = new iqm_mesh[hdr.num_meshes];
-	memcpy(meshes, &file[hdr.ofs_meshes], hdr.num_meshes*sizeof(iqm_mesh));
+	meshes = new iqm_mesh[hdr->num_meshes];
+	memcpy(meshes, &file[hdr->ofs_meshes], hdr->num_meshes*sizeof(iqm_mesh));
 
 	float *inposition = NULL, *innormal = NULL, *intangent = NULL, *intexcoord = NULL;
 	uchar *inblendindex = NULL, *inblendweight = NULL;
 
-	for(unsigned i = 0; i < hdr.num_vertexarrays; i++)
+	for(unsigned i = 0; i < hdr->num_vertexarrays; i++)
 	{
 		iqm_vertexarray &va = vertex_arrays[i];
 
@@ -237,19 +247,9 @@ int main(int argc, char **argv)
 		);
 	}
 
-	struct vertex
-	{
-		float position[3];
-		float texcoord[2];
-		float normal[3];
-		float tangent[4];
-		uchar blendindex[4];
-		uchar blendweight[4];
-	};
+	verts = new vertex[hdr->num_vertices];
 
-	vertex *verts = new vertex[hdr.num_vertices];
-
-	for(unsigned i = 0; i < hdr.num_vertices; i++)
+	for(unsigned i = 0; i < hdr->num_vertices; i++)
 	{
 		vertex &v = verts[i];
 		if(inposition) memcpy(v.position, &inposition[i*3], sizeof(v.position));
@@ -262,43 +262,24 @@ int main(int argc, char **argv)
 
 	delete[] file;
 
-	Nepgear::Window_GL wnd;
-	Nepgear::WindowParams params;
-	params.width = 960;
-	params.height = 540;
-	params.samples = 4;
-	if (!wnd.open(params, "Model loading test"))
-		return 1;
+	return 0;
+}
 
-	// MSAA looks better for the test scene
-	bool fxaa_enabled = false;
+void iqm_upload(iqm_header *hdr, GLuint *buffers)
+{
+	glGenVertexArrays(1, &buffers[0]);
+	glGenBuffers(2, &buffers[1]);
+	glBindVertexArray(buffers[0]);
 
-	GLFWwindow *w = (GLFWwindow*)wnd.handle;
+	LOG->Debug("%ldK", hdr->num_triangles*sizeof(vertex)/1024);
 
-#ifdef X11
-	Display* xdpy = glfwGetX11Display();
-	Window xwnd = glfwGetX11Window(w);
-#endif
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, hdr->num_vertices*sizeof(vertex), verts, GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[2]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr->num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
 
-	// cinnamon leaves a ghost of the window if it crashes too fast.
-	usleep(17000); // sleep for 17ms, should be enough.
-
-	GLuint buffers[2], vao;
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(2, buffers);
-
-	glBindVertexArray(vao);
-
-	LOG->Debug("%ldK", hdr.num_triangles*sizeof(vertex)/1024);
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, hdr.num_vertices*sizeof(vertex), verts, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, hdr.num_triangles*sizeof(iqm_triangle), tris, GL_STATIC_DRAW);
-
-	for (unsigned i = 0; i < hdr.num_vertexarrays; ++i)
+	for (unsigned i = 0; i < 4; ++i)
 		glEnableVertexAttribArray(i);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(vertex), (void*)0);
@@ -307,6 +288,50 @@ int main(int argc, char **argv)
 	glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(vertex), (void*)(9*sizeof(float)));
 
 	CheckError();
+}
+
+void iqm_cleanup()
+{
+	delete[] verts;
+	delete[] tris;
+	delete[] meshes;
+	delete[] vertex_arrays;
+}
+
+int main(int argc, char **argv)
+{
+	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
+
+	Nepgear::File model_file;
+	model_file.open("models/suzanne.iqm", Nepgear::FileAccessMode_Read);
+
+//	Nepgear::Model model;
+//	model.load_from_iqm(iqm_file);
+
+	iqm_header hdr;
+
+	iqm_read(model_file, &hdr);
+
+	model_file.close();
+
+	Nepgear::Window_GL wnd;
+	Nepgear::WindowParams params;
+	params.width = 800;
+	params.height = 600;
+	params.fullscreen = 1;
+	if (!wnd.open(params, "Model loading test"))
+		return 1;
+
+	bool fxaa_enabled = true;
+
+// cinnamon leaves a ghost of the window if it crashes too fast.
+#ifdef X11
+	Display* xdpy = glfwGetX11Display();
+	usleep(17000); // sleep for 17ms, it's enough.
+#endif
+
+	GLuint buffers[3];
+	iqm_upload(&hdr, buffers);
 
 	ShaderProgram p("Skydome.Vertex.GL30", "Skydome.Fragment.GL30");
 	{
@@ -337,6 +362,7 @@ int main(int argc, char **argv)
 
 	CheckError();
 
+	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 	glfwSetWindowSizeCallback(w, &resize);
 	glfwSetWindowUserPointer(w, &p);
 	glfwSwapInterval(1);
@@ -353,13 +379,12 @@ int main(int argc, char **argv)
 
 	LOG->Debug("%d meshes", hdr.num_meshes);
 
-	LOG->Debug("foo");
 	CheckError();
 
 	Nepgear::PostProcessEffect fxaa_pp;
 	if (fxaa_enabled)
 	{
-		fxaa_pp.init(960, 540);
+		fxaa_pp.init(1440, 900);
 		fxaa_pp.set_material(&fxaa);
 		fxaa_pp.bind();
 	}
@@ -371,11 +396,31 @@ int main(int argc, char **argv)
 	glClearColor(color.r, color.g, color.b, color.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glfwSetInputMode(w, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
+
 	while (!glfwGetWindowParam(w, GLFW_SHOULD_CLOSE) && !glfwGetKey(w, GLFW_KEY_ESCAPE))
 	{
 		now = glfwGetTime();
 		delta = now - then;
 		then = now;
+
+#ifdef X11
+		/* Nasty hack to support alt+tab with fullscreen windows.
+		 * essentially, it's because X is horrible. */
+		if (params.fullscreen)
+		{
+			if (glfwGetKey(w, GLFW_KEY_LEFT_ALT) ||
+				glfwGetKey(w, GLFW_KEY_RIGHT_ALT))
+			{
+				XUngrabPointer(xdpy, CurrentTime);
+				XFlush(xdpy);
+			}
+			else
+			{
+				glfwSetInputMode(w, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
+			}
+		}
+#endif
 
 		if (fxaa_enabled) fxaa_pp.bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -399,7 +444,7 @@ int main(int argc, char **argv)
 		glm::mat4 view = glm::lookAt(glm::vec3(0, -10, 2.5), glm::vec3(0, 0, 0), glm::vec3(0.0, 0.0, 1.0));
 		glm::mat4 projection = glm::perspective(40.0f, 960.f/540.f, 0.1f, 100.0f);
 
-		glBindVertexArray(vao);
+		glBindVertexArray(buffers[0]);
 
 		p.Bind();
 		p.SetMatrix4("ModelView", view * model);
@@ -435,8 +480,8 @@ int main(int argc, char **argv)
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(2, buffers);
+	glDeleteVertexArrays(1, &buffers[0]);
+	glDeleteBuffers(2, &buffers[1]);
 
 	p.Cleanup();
 	outline.Cleanup();
@@ -444,10 +489,7 @@ int main(int argc, char **argv)
 
 	glfwDestroyWindow(w);
 
-	delete[] verts;
-	delete[] tris;
-	delete[] meshes;
-	delete[] vertex_arrays;
+	iqm_cleanup();
 
 	return 0;
 }
