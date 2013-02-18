@@ -28,7 +28,9 @@ void Model::cleanup()
 	{
 		delete[] first_triangle;
 		delete[] num_triangles;
+		num_meshes = 0;
 	}
+	else return;
 
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(2, vbo);
