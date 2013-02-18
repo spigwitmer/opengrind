@@ -10,6 +10,7 @@
 #define GLFW_EXPOSE_NATIVE_GLX
 #define X11
 #include <GL/glfw3native.h>
+#include <unistd.h>
 #endif
 
 #include <glm/glm.hpp>
@@ -18,7 +19,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <unistd.h>
 
 #include "utils/logger.h"
 #include "utils/timer.h"
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 	glfwSetInputMode(w, GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
 
 	int frames = 0;
-	int last_fps;
+	int last_fps = 0;
 	Nepgear::Timer frametimer;
 
 	GLuint tex;
