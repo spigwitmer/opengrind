@@ -59,7 +59,18 @@ void trim(string &str)
 	}
 	else str.erase(str.begin(), str.end());
 	
-	// and newlines
+	// and newlines (\r, then \n just in case)
+	pos = str.find_last_not_of('\r');
+	
+	if(pos != string::npos)
+	{
+		str.erase(pos + 1);
+		pos = str.find_first_not_of('\r');
+		
+		if(pos != string::npos) str.erase(0, pos);
+	}
+	else str.erase(str.begin(), str.end());
+
 	pos = str.find_last_not_of('\n');
 	
 	if(pos != string::npos)
