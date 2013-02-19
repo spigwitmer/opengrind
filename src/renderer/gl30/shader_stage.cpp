@@ -164,7 +164,7 @@ ShaderStage::~ShaderStage()
 
 bool ShaderStage::Load(ShaderType type, string key)
 {
-	LOG->Trace("Loading " + ShaderToString(type) + " shader \"" + key + "\"");
+	//LOG->Trace("Loading " + ShaderToString(type) + " shader \"" + key + "\"");
 
 	string token = GetToken(key);
 	string path  = GetPath(key);
@@ -176,7 +176,7 @@ bool ShaderStage::Load(ShaderType type, string key)
 
 	if (Compile())
 	{
-		LOG->Debug("Successfully loaded \"" + key + "\"");
+		LOG->Debug("Loaded \"" + key + "\"");
 		return true;
 	}
 
