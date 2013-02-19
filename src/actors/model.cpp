@@ -172,7 +172,7 @@ bool Model::load_buffer(iqm_header *hdr, iqm_vertex *verts, iqm_triangle *tris, 
 	glGenBuffers(2, vbo);
 	glBindVertexArray(vao);
 
-	LOG->Debug("Uploading %ldKB of mesh data for %ld mesh(es)",
+	LOG->Debug("Uploading %ldKB of mesh data for %d mesh(es)",
 		hdr->num_triangles*sizeof(iqm_vertex)/1024,
 		hdr->num_meshes
 	);

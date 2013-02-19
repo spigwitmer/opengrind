@@ -38,7 +38,7 @@ int ng_vsnprintf(char *buf, size_t max, const char *in, va_list va)
 	char *buf = staticbuf; \
 	va_start(va, in); \
 	int need = ng_vsnprintf(buf, sizeof(staticbuf), in, va) + 1; \
-	if (need > sizeof(staticbuf)) \
+	if (need > (int)sizeof(staticbuf)) \
 	{ \
 		/* staticbuf wasn't large enough, malloc large enough */ \
 		buf = (char *) malloc(need); \
