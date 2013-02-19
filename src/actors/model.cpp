@@ -44,6 +44,8 @@ bool Model::load_file(File model_file)
 	iqm_triangle *tris = NULL;
 	iqm_mesh *meshes = NULL;
 
+	model_file.open();
+
 	/* make sure the iqm file is one we can actually read */
 	model_file.seek(0);
 	model_file.read(hdr.magic, 16, 1);
@@ -162,6 +164,8 @@ bool Model::load_file(File model_file)
 	delete[] tris;
 	delete[] meshes;
 	delete[] vertex_arrays;
+
+	model_file.close();
 
 	return false;
 }

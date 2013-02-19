@@ -44,7 +44,6 @@ int main(int argc, char **argv)
 {
 	Nepgear::Nepgear ng(argc, argv, "model-loader.log");
 
-	Nepgear::File iqm_file, skydome_file;
 	Nepgear::Model model, skydome;
 
 	Nepgear::Window_GL wnd;
@@ -58,13 +57,8 @@ int main(int argc, char **argv)
 
 	GLFWwindow *w = (GLFWwindow*)wnd.handle;
 
-	iqm_file.open("models/suzanne.iqm");
-	model.load_file(iqm_file);
-	iqm_file.close();
-
-	skydome_file.open("models/skydome.iqm");
-	skydome.load_file(skydome_file);
-	skydome_file.close();
+	model.load_file(Nepgear::File("models/suzanne.iqm"));
+	skydome.load_file(Nepgear::File("models/skydome.iqm"));
 
 	bool fxaa_enabled = true;
 
