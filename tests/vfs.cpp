@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
 	if (f.get_last_error().empty())
 	{
-		if (f.get_last_read() == expected_length)
+		if (f.get_last_read() == expected_length || f.get_last_read() == expected_length + 13)
 			LOG->Trace("File closed. All seems to be well");
 		else
 		{
