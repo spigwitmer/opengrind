@@ -14,6 +14,19 @@ Nepgear::Logger *LOG = NULL;
 namespace Nepgear
 {
 
+int ng_vsnprintf(char *buf, size_t max, const char *in, va_list va)
+{
+	int need = vsnprintf(buf, max, in, va);
+
+#ifdef _MSC_VER
+	if (need < 0) need = _vscprintf(in, va);
+#endif
+
+	assert(need >= 0);
+
+	return need;
+}
+
 /*
  * We'll need to do this in several functions and making it a normal function
  * doesn't behave properly. Macros to the rescue!
@@ -24,7 +37,7 @@ namespace Nepgear
 	char staticbuf[1024]; \
 	char *buf = staticbuf; \
 	va_start(va, in); \
-	unsigned int need = vsnprintf(buf, sizeof(staticbuf), in, va) + 1; \
+	int need = ng_vsnprintf(buf, sizeof(staticbuf), in, va) + 1; \
 	if (need > sizeof(staticbuf)) \
 	{ \
 		/* staticbuf wasn't large enough, malloc large enough */ \
