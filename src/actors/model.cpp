@@ -67,6 +67,7 @@ bool Model::load_file(File model_file)
 		return 1;
 	}
 
+	/*
 	LOG->Debug("\n%s\n"
 		"version: %d\n"
 		"filesize: %d\n"
@@ -74,6 +75,7 @@ bool Model::load_file(File model_file)
 		hdr.magic, hdr.version,
 		hdr.filesize, hdr.flags
 	);
+	*/
 
 	char *file = new char[hdr.filesize];
 
@@ -132,10 +134,12 @@ bool Model::load_file(File model_file)
 			inblendweight = (uchar *)&file[va.offset]; break;
 		}
 
+		/*
 		LOG->Debug(
 			"VA %u: type=%u, flags=%u, format=%u, size=%u, offset=%u",
 			i, va.type, va.flags, va.format, va.size, va.offset
 		);
+		*/
 	}
 
 	verts = new iqm_vertex[hdr.num_vertices];
@@ -150,8 +154,6 @@ bool Model::load_file(File model_file)
 		if(inblendindex) memcpy(v.blendindex, &inblendindex[i*4], sizeof(v.blendindex));
 		if(inblendweight) memcpy(v.blendweight, &inblendweight[i*4], sizeof(v.blendweight));
 	}
-
-	LOG->Debug("%d meshes", hdr.num_meshes);
 
 	load_buffer(&hdr, verts, tris, meshes);
 
@@ -170,7 +172,10 @@ bool Model::load_buffer(iqm_header *hdr, iqm_vertex *verts, iqm_triangle *tris, 
 	glGenBuffers(2, vbo);
 	glBindVertexArray(vao);
 
-	LOG->Debug("%ldK", hdr->num_triangles*sizeof(iqm_vertex)/1024);
+	LOG->Debug("Uploading %ldKB of mesh data for %ld mesh(es)",
+		hdr->num_triangles*sizeof(iqm_vertex)/1024,
+		hdr->num_meshes
+	);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, hdr->num_vertices*sizeof(iqm_vertex), verts, GL_STATIC_DRAW);
