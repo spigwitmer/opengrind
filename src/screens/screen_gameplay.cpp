@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "renderer/common/error.h"
 #include "renderer/gl30/shader.h"
@@ -19,8 +19,8 @@ using namespace std;
 
 namespace
 {
-	glm::vec3 orientation(0.0, 1.0, 0.0), position(0.0, 10.0, 0.0);
-	glm::vec3 forward(0, 1, 0);
+	glm::quat orientation;
+	glm::vec3 position(0.0, 10.0, 0.0);
 	glm::mat4 view(1.0);
 
 	Nepgear::Model *mdl;
@@ -102,10 +102,9 @@ bool ScreenGameplay::HandleEvent(const string &name, const IEvent &evt)
 		Nepgear::InputManager *im = Nepgear::InputManager::GetSingleton();
 		Input(im);
 		if (im->GetButton(RS_KEY_SPACE)->IsDown())
-		{
 			LOG->Debug("the final frontier");
+		if (im->GetButton(RS_KEY_ENTER)->IsDown())
 			ignore_joystick = !ignore_joystick;
-		}
 	}
 
 	return true;
@@ -150,7 +149,7 @@ void ScreenGameplay::UpdateInternal(double delta)
 		// mouse shit
 		int x, y;
 		glfwGetCursorPos(w, &x, &y);
-		j2 = glm::vec2(-float(x - last_x)/25, -float(y - last_y)/25);
+		j2 = glm::vec2(-float(x - last_x)/15, -float(y - last_y)/15);
 
 		last_x = x;
 		last_y = y;
@@ -163,6 +162,10 @@ void ScreenGameplay::UpdateInternal(double delta)
 			j1.x += 1.0;
 		if (glfwGetKey(w, GLFW_KEY_D))
 			j1.x -= 1.0;
+		if (glfwGetKey(w, GLFW_KEY_LEFT_SHIFT))
+			tr.x += 1.0;
+		if (glfwGetKey(w, GLFW_KEY_SPACE))
+			tr.y += 1.0;
 	}
 	else
 	{
@@ -176,15 +179,16 @@ void ScreenGameplay::UpdateInternal(double delta)
 		delete[] axes;
 	}
 
-	// Z is up.
-	// TODO: use local axes. this breaks if you turn around/sideways.
+	orientation = glm::rotate(orientation, j2.x, glm::vec3(0, 0, 1));
+	orientation = glm::rotate(orientation, j2.y, glm::vec3(1, 0, 0));
+
+	// Z is up, look down -Y.
 	glm::vec3 up = glm::vec3(0, 0, 1);
-	forward = glm::rotateZ<float>(forward, j2.x);
-	forward = glm::rotateX<float>(forward, j2.y);
-	glm::vec3 right = glm::cross(forward, up);
+	glm::vec3 forward = orientation * glm::vec3(0, 1, 0);
+	glm::vec3 right = glm::cross(forward, up); //orientation * glm::vec3(1, 0, 0);
 
 	// movement
-	float speed = delta * 3.0;
+	float speed = delta * 5.0;
 	position += forward * (j1.y * speed);
 	position += right * (j1.x * speed);
 	position += up * ((tr.x + (-tr.y)) * speed);
