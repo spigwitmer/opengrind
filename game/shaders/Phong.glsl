@@ -11,7 +11,7 @@ out vec4 vpeye;
 void main()
 {
 	vpeye = ModelView * vPosition;
-	vneye = vec4(mat3(ModelView) * vNormal, 0);
+	vneye = normalize(vec4(mat3(ModelView) * vNormal, 0));
 
 	gl_Position = Projection * ModelView * vPosition;
 }
