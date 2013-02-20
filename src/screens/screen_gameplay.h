@@ -19,5 +19,5 @@ public:
 	void UpdateInternal(double delta);
 	bool HandleEvent(const std::string &name, const IEvent &evt);
 	
-	void Draw(DrawBuffer db);
+	void Draw(DrawBuffer db, glm::vec4 vp);
 };

@@ -38,7 +38,7 @@ public:
 		if (key == "Width")
 			return 1280;
 		else if (key == "Height")
-			return 720;
+			return 800;
 		else if (key == "Fullscreen")
 			return 0;
 		return 0;

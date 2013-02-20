@@ -148,7 +148,7 @@ void ScreenWebOverlay::UpdateInternal(double delta)
 	}
 }
 
-void ScreenWebOverlay::Draw(DrawBuffer db)
+void ScreenWebOverlay::Draw(DrawBuffer db, glm::vec4 vp)
 {
 	glDisable(GL_DEPTH_TEST);
 

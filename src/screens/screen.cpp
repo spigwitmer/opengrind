@@ -108,7 +108,7 @@ void Screen::Update(double delta)
 	UpdateInternal(delta);
 }
 
-void Screen::Draw(DrawBuffer db)
+void Screen::Draw(DrawBuffer db, glm::vec4 vp)
 {
 }
 

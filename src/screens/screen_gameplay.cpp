@@ -9,8 +9,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include "renderer/common/error.h"
 #include "renderer/gl30/shader.h"
 #include "actors/model.h"
+#include "renderer/gl30/postprocess.h"
+
 
 using namespace std;
 
@@ -18,9 +21,18 @@ namespace
 {
 	glm::vec3 orientation(0.0, 1.0, 0.0), position(0.0, 10.0, 0.0);
 	glm::vec3 forward(0, 1, 0);
+	glm::mat4 view(1.0);
 
 	Nepgear::Model *mdl;
-	ShaderProgram *phong;
+	ShaderProgram *phong, *fxaa;
+	Nepgear::PostProcessEffect *fxaa_pp;
+	bool fxaa_enabled = true, ignore_joystick = false;
+	int last_x = 0, last_y = 0;
+
+	float calc_fxaa_alpha(glm::vec3 in)
+	{
+		return glm::dot(in, glm::vec3(0.299, 0.587, 0.114));
+	}
 }
 
 REGISTER_SCREEN(ScreenGameplay)
@@ -46,13 +58,36 @@ void ScreenGameplay::Init()
 	phong->Bind();
 	phong->SetMatrix4("ModelView", glm::mat4(1.0));
 
+	fxaa = new ShaderProgram("FXAA.Vertex.GL30", "FXAA.Fragment.GL30");
+	{
+		fxaa->BindAttrib(0, "vPosition");
+		fxaa->BindAttrib(1, "vCoords");
+		fxaa->Link();
+		fxaa->Bind();
+		fxaa->SetInteger("Texture", 0);
+	}
+
 	glEnable(GL_DEPTH_TEST);
+
+	fxaa_pp = new Nepgear::PostProcessEffect();
+	if (fxaa_enabled)
+	{
+		fxaa_pp->init(640, 800);
+		fxaa_pp->set_material(fxaa);
+	}
+
+	CheckError();
+
+	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR_MODE, GLFW_CURSOR_CAPTURED);
+	glfwGetCursorPos(glfwGetCurrentContext(), &last_x, &last_y);
 }
 
 ScreenGameplay::~ScreenGameplay()
 {
 	delete mdl;
 	delete phong;
+	delete fxaa;
+	delete fxaa_pp;
 }
 
 void ScreenGameplay::Input(Nepgear::InputManager *im)
@@ -67,7 +102,10 @@ bool ScreenGameplay::HandleEvent(const string &name, const IEvent &evt)
 		Nepgear::InputManager *im = Nepgear::InputManager::GetSingleton();
 		Input(im);
 		if (im->GetButton(RS_KEY_SPACE)->IsDown())
+		{
 			LOG->Debug("the final frontier");
+			ignore_joystick = !ignore_joystick;
+		}
 	}
 
 	return true;
@@ -98,32 +136,51 @@ void ScreenGameplay::UpdateInternal(double delta)
 		joysticks.push_back(js);
 	}
 
-	glm::mat4 xform(1.0);
-	glm::mat4 view(1.0);
+	view = glm::mat4(1.0);
 	glm::mat4 projection = glm::perspective(90.0f/2, (1280.f/2.f)/800.f, 0.1f, 100.0f);
 
 	phong->Bind();
 	phong->SetMatrix4("Projection", projection);
 
-	if (joysticks.size() == 0)
+	glm::vec2 j1, j2, tr;
+
+	if (joysticks.size() == 0 || ignore_joystick)
 	{
-		view = glm::translate(view, position);
-		phong->SetMatrix4("ModelView", view * xform);
-		return;
+		GLFWwindow *w = glfwGetCurrentContext();
+		// mouse shit
+		int x, y;
+		glfwGetCursorPos(w, &x, &y);
+		j2 = glm::vec2(-float(x - last_x)/25, -float(y - last_y)/25);
+
+		last_x = x;
+		last_y = y;
+
+		if (glfwGetKey(w, GLFW_KEY_S))
+			j1.y += 1.0;
+		if (glfwGetKey(w, GLFW_KEY_W))
+			j1.y -= 1.0;
+		if (glfwGetKey(w, GLFW_KEY_A))
+			j1.x += 1.0;
+		if (glfwGetKey(w, GLFW_KEY_D))
+			j1.x -= 1.0;
+	}
+	else
+	{
+		int num_axes = glfwGetJoystickParam(joysticks[0].id, GLFW_AXES);
+		float *axes = new float[num_axes];
+		glfwGetJoystickAxes(joysticks[0].id, axes, num_axes);
+
+		j1 = glm::vec2(-axes[0], -axes[1]); // left stick
+		j2 = glm::vec2(-axes[2],  axes[3]); // right stick
+		tr = glm::vec2(axes[12]*0.5+0.5, -axes[13]*0.5+0.5); // triggers
+		delete[] axes;
 	}
 
-	int num_axes = glfwGetJoystickParam(joysticks[0].id, GLFW_AXES);
-	float *axes = new float[num_axes];
-	glfwGetJoystickAxes(joysticks[0].id, axes, num_axes);
-
-	glm::vec2 j1 = glm::vec2(-axes[0], -axes[1]); // left stick
-	glm::vec2 j2 = glm::vec2(-axes[2],  axes[3]); // right stick
-	glm::vec2 tr = glm::vec2(axes[12]*0.5+0.5, -axes[13]*0.5+0.5); // triggers
-
 	// Z is up.
+	// TODO: use local axes. this breaks if you turn around/sideways.
 	glm::vec3 up = glm::vec3(0, 0, 1);
-	forward = glm::normalize(glm::rotateZ<float>(forward, j2.x));
-	forward = glm::normalize(glm::rotateX<float>(forward, j2.y));
+	forward = glm::rotateZ<float>(forward, j2.x);
+	forward = glm::rotateX<float>(forward, j2.y);
 	glm::vec3 right = glm::cross(forward, up);
 
 	// movement
@@ -136,12 +193,33 @@ void ScreenGameplay::UpdateInternal(double delta)
 	view = glm::translate(view, position);
 
 	phong->Bind();
-	phong->SetMatrix4("ModelView", view * xform);
-	delete[] axes;
+	phong->SetMatrix4("ModelView", view);
+
+	fxaa_pp->bind();
+	glm::vec4 color(0.1, 0.1, 0.1, 1.0);
+	color.a = calc_fxaa_alpha(glm::vec3(color.r, color.g, color.b));
+	glClearColor(color.r, color.g, color.b, color.a);
+	fxaa_pp->unbind();
 }
 
-void ScreenGameplay::Draw(DrawBuffer db)
+void ScreenGameplay::Draw(DrawBuffer db, glm::vec4 vp)
 {
+	fxaa_pp->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, (int)vp.z, (int)vp.w);
+
+	const float separation = 0.075;
+	glm::mat4 xform(1.0);
+	if (db == DrawBuffer_Left)
+		xform = glm::translate(xform, glm::vec3(-separation, 0, 0));
+	else if (db == DrawBuffer_Right)
+		xform = glm::translate(xform, glm::vec3( separation, 0, 0));
+
 	phong->Bind();
+	phong->SetMatrix4("ModelView", view * xform);
 	mdl->draw();
+	fxaa_pp->unbind();
+
+	glViewport((int)vp.x, (int)vp.y, (int)vp.z, (int)vp.w);
+	fxaa_pp->draw();
 }

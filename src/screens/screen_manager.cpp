@@ -85,16 +85,16 @@ void ScreenManager::Draw(StereoscopicMode sm)
 	{
 		if (sm == StereoscopicMode_None)
 		{
-			(*it)->Draw(DrawBuffer_Center);
+			(*it)->Draw(DrawBuffer_Center, vp);
 			continue;
 		}
 		if (sm == StereoscopicMode_SBS)
 		{
 			glViewport(0, 0, (int)vp.z, (int)vp.w);
-			(*it)->Draw(DrawBuffer_Left);
+			(*it)->Draw(DrawBuffer_Left, glm::vec4(0, 0, vp.z, vp.w));
 
 			glViewport((int)vp.z, 0, (int)vp.z, (int)vp.w);
-			(*it)->Draw(DrawBuffer_Right);
+			(*it)->Draw(DrawBuffer_Right, glm::vec4(vp.z, 0, vp.z, vp.w));
 			continue;
 		}
 	}

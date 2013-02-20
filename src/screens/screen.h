@@ -17,7 +17,7 @@ public:
 	void Reset();
 
 	void Update(double delta);
-	virtual void Draw(DrawBuffer db);
+	virtual void Draw(DrawBuffer db, glm::vec4 vp);
 
 	// TODO
 	void Push(ActorBase* obj);
